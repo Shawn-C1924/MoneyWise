@@ -38,7 +38,23 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 </div>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 <script>
-const DEFAULT={configured:false,startingSavings:0,annualPay:0,target:0,years:2,showEssentialsOutcome:true,flexible:0,recurring:[],gifts:0,weekendFood:0,general:0,transactions:[],carry:0,carryHistory:[],dark:false,theme:"iconic",openMonths:{}};
+const DEFAULT={configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
+      {name:"Gas",amount:40,frequency:"monthly"},
+      {name:"Xiaomi",amount:3.50,frequency:"monthly"},
+      {name:"F1",amount:50,frequency:"yearly"},
+      {name:"iCloud",amount:12,frequency:"monthly"},
+      {name:"ChatGPT",amount:8,frequency:"monthly"},
+      {name:"Netflix",amount:20,frequency:"monthly"},
+      {name:"Gamepass",amount:20,frequency:"monthly"},
+      {name:"YouTube",amount:0.80,frequency:"monthly"},
+      {name:"Mobile",amount:17.15,frequency:"monthly"},
+      {name:"iRacing",amount:8,frequency:"monthly"},
+      {name:"Hair",amount:28,frequency:"monthly"},
+      {name:"Cloudigo",amount:3.40,frequency:"monthly"},
+      {name:"Gym",amount:180,frequency:"yearly"},
+      {name:"Car insurance",amount:400,frequency:"yearly"},
+      {name:"Car license",amount:300,frequency:"yearly"}
+    ],gifts:100,weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],dark:false,theme:"iconic",openMonths:{}};
 let state;try{state=JSON.parse(localStorage.getItem("moneywise")||"null")||structuredClone(DEFAULT)}catch(e){state=structuredClone(DEFAULT)}
 Object.keys(DEFAULT).forEach(k=>{if(state[k]===undefined)state[k]=structuredClone(DEFAULT[k])});
 if(!state.theme)state.theme=state.dark?"dark":"iconic";
