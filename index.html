@@ -3,159 +3,127 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#111827">
+<meta name="theme-color" content="#064e3b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="manifest" href="manifest.webmanifest">
 <title>MoneyWise</title>
 <style>
-:root{--bg:#f4f5f7;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--soft:#f8fafc;--accent:#111827;--danger:#fee2e2;--dangerText:#991b1b}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-body.dark{--bg:#0b0f14;--card:#151a21;--text:#f3f4f6;--muted:#9ca3af;--line:#2b323c;--soft:#1c232c;--accent:#f3f4f6;--danger:#3b2024;--dangerText:#fecaca}
-.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:94px}.top{padding:calc(env(safe-area-inset-top) + 22px) 18px 14px;background:var(--card);position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line)}
-h1{font-size:28px;margin:0 0 4px}.muted{color:var(--muted);font-size:14px}.card{background:var(--card);border-radius:18px;padding:18px;margin:14px;box-shadow:0 2px 10px #0000000b}.dark .card{box-shadow:none;border:1px solid var(--line)}
-.big{font-size:36px;font-weight:750;margin:8px 0}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;margin:8px 0}.pill{display:inline-block;padding:5px 9px;border-radius:999px;background:#eef2ff;color:#27356b;font-size:12px}.dark .pill{background:#26304b;color:#dbe4ff}
-.progress{height:10px;background:var(--line);border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--accent);border-radius:99px}
-button{border:0;border-radius:12px;padding:12px 14px;font-weight:650;background:var(--accent);color:var(--bg);font-size:15px;margin:3px 3px 3px 0}button.secondary{background:var(--soft);color:var(--text)}button.danger{background:var(--danger);color:var(--dangerText)}button.icon{padding:8px 10px;font-size:13px}
-.nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;z-index:5;padding-bottom:env(safe-area-inset-bottom)}
-.nav button{background:var(--card);color:var(--muted);border-radius:0;padding:12px 10px;flex:1;max-width:130px;font-size:12px;margin:0}.nav button.active{color:var(--text);font-weight:800}.nav span{display:block;font-size:20px;line-height:20px;margin-bottom:2px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px}.metric{background:var(--soft);border-radius:14px;padding:13px}.metric b{display:block;font-size:19px;margin-top:4px}
-input,select{width:100%;padding:12px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;font-size:16px;margin:5px 0 10px}
-.item{padding:12px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.small{font-size:13px}
-.modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:var(--card);color:var(--text);width:100%;border-radius:22px 22px 0 0;padding:20px 18px 30px;max-height:90vh;overflow:auto}
-.section-title{font-size:18px;font-weight:750;margin:20px 14px 8px}.month-head{cursor:pointer;padding:14px 12px;margin:0 -6px;border-radius:12px}.month-head.under{background:#dcfce7}.month-head.over{background:#fee2e2}.dark .month-head.under{background:#16351f}.dark .month-head.over{background:#3b2024}.status{font-size:12px;font-weight:750;margin-left:6px}.under .status{color:#166534}.over .status{color:#991b1b}.dark .under .status{color:#86efac}.dark .over .status{color:#fecaca}
-.settings-row{padding:10px 0;border-bottom:1px solid var(--line)}
-.toggle{display:flex;justify-content:space-between;align-items:center}
-.switch{width:50px;height:30px;border-radius:20px;background:#9ca3af;padding:3px;cursor:pointer}.switch i{display:block;width:24px;height:24px;border-radius:50%;background:white;transition:.2s}.switch.on{background:#22c55e}.switch.on i{transform:translateX(20px)}
+:root{--bg:#f3f6f4;--card:#fff;--text:#102019;--muted:#68766f;--line:#dce6e1;--soft:#edf5f1;--accent:#0a9f68;--accent2:#08784f;--gold:#d9b653;--danger:#e94b55;--dangerbg:#fff0f1;--shadow:0 8px 28px rgba(8,55,38,.08)}
+body.dark{--bg:#07120e;--card:#0d2018;--text:#effcf5;--muted:#8fa69c;--line:#1c382d;--soft:#11291f;--accent:#40e58b;--accent2:#12b86d;--gold:#e7c35f;--danger:#ff7078;--dangerbg:#351a1e;--shadow:0 8px 28px rgba(0,0,0,.25)}
+body.iconic{--bg:#07583d;--card:#0a3024;--text:#f2fff8;--muted:#a8d2c0;--line:#1c654c;--soft:#104735;--accent:#5af19a;--accent2:#16c879;--gold:#f0ce62;--danger:#ff747d;--dangerbg:#3c1c22;--shadow:0 12px 34px rgba(0,0,0,.24)}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
+.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:96px}.top{padding:calc(env(safe-area-inset-top) + 20px) 18px 15px;background:linear-gradient(135deg,var(--card),color-mix(in srgb,var(--card) 76%,var(--accent) 24%));position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line)}
+h1{font-size:28px;letter-spacing:-.7px;margin:0}.muted{color:var(--muted);font-size:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin:13px 14px;box-shadow:var(--shadow)}
+.hero{background:linear-gradient(135deg,#064e3b,#087e55 58%,#18aa6d);color:#fff;border:0}.hero .muted{color:#c8f7df}.hero .progress{background:#ffffff2b}.hero .progress>div{background:#caffdf}
+.big{font-size:38px;font-weight:800;letter-spacing:-1.2px;margin:7px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 14px}.metric{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:14px}.metric b{display:block;font-size:19px;margin-top:4px}
+.progress{height:9px;background:var(--line);border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--accent);border-radius:99px}
+button{border:0;border-radius:13px;padding:11px 14px;font-weight:700;background:var(--accent2);color:white;font-size:15px;margin:3px 3px 3px 0}button.secondary{background:var(--soft);color:var(--text);border:1px solid var(--line)}button.danger{background:var(--dangerbg);color:var(--danger)}button.icon{background:transparent;border:0;color:var(--muted);padding:7px 8px;font-size:17px;margin:0}button.icon.delete{color:var(--danger)}
+.nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;z-index:5;padding-bottom:env(safe-area-inset-bottom)}.nav button{background:transparent;color:var(--muted);border-radius:0;padding:10px 8px 11px;flex:1;max-width:130px;font-size:11px;margin:0}.nav button.active{color:var(--accent);font-weight:800}.nav span{display:block;font-size:20px;line-height:20px;margin-bottom:3px}
+.item{padding:11px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.small{font-size:13px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--soft);font-size:12px}.iconbox{width:34px;height:34px;border-radius:11px;background:var(--soft);display:grid;place-items:center;flex:none}.month-head{cursor:pointer;padding:13px 12px;margin:0 -3px;border-radius:16px}.month-head.under{background:color-mix(in srgb,#22c55e 13%,var(--card))}.month-head.over{background:color-mix(in srgb,#ef4444 13%,var(--card))}.status{font-size:12px;font-weight:800}.under .status{color:#23a85f}.over .status{color:var(--danger)}
+input,select{width:100%;padding:12px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;font-size:16px;margin:5px 0 10px}.modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:var(--card);color:var(--text);width:100%;border-radius:24px 24px 0 0;padding:20px 18px 30px;max-height:92vh;overflow:auto}
+.toggle{display:flex;justify-content:space-between;align-items:center}.switch{width:50px;height:30px;border-radius:20px;background:#87958f;padding:3px;cursor:pointer}.switch i{display:block;width:24px;height:24px;border-radius:50%;background:white;transition:.2s}.switch.on{background:var(--accent)}.switch.on i{transform:translateX(20px)}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.theme-choice{padding:13px 6px;border:1px solid var(--line);border-radius:14px;text-align:center;background:var(--soft);cursor:pointer}.theme-choice.active{border:2px solid var(--accent);padding:12px 5px}.theme-icon{font-size:23px;display:block;margin-bottom:4px}.empty{text-align:center;padding:18px 0;color:var(--muted)}
 </style>
 </head>
 <body>
 <div id="app" class="app"></div>
 <div class="nav">
 <button data-tab="home" class="active"><span>⌂</span>Home</button>
-<button data-tab="spend"><span>＋</span>Spend</button>
+<button data-tab="spend"><span>▣</span>Spend</button>
 <button data-tab="budget"><span>☷</span>Budget</button>
-<button data-tab="plan"><span>◷</span>Plan</button>
+<button data-tab="plan"><span>▥</span>Plan</button>
 </div>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 <script>
-const DEFAULT={startingSavings:34000,annualPay:32000,target:75000,flexible:288,recurring:[
-["Gas",40],["Xiaomi",3.5],["F1",50/12],["iCloud",12],["ChatGPT",8],["Netflix",20],["Gamepass",20],["YouTube",.8],["Mobile plan",17.15],["iRacing",8],["Hair",28],["Cloudigo",3.4],["Gym",180/12],["Car insurance",400/12],["Car license",300/12]
-],gifts:100,weekendFood:40*52/12,general:100,transactions:[],carry:0,carryHistory:[],dark:false,openMonths:{}};
-let state;
-try{state=JSON.parse(localStorage.getItem("moneywise")||"null")||structuredClone(DEFAULT)}catch(e){state=structuredClone(DEFAULT)}
+const DEFAULT={configured:false,startingSavings:0,annualPay:0,target:0,years:2,showEssentialsOutcome:true,flexible:0,recurring:[],gifts:0,weekendFood:0,general:0,transactions:[],carry:0,carryHistory:[],dark:false,theme:"iconic",openMonths:{}};
+let state;try{state=JSON.parse(localStorage.getItem("moneywise")||"null")||structuredClone(DEFAULT)}catch(e){state=structuredClone(DEFAULT)}
 Object.keys(DEFAULT).forEach(k=>{if(state[k]===undefined)state[k]=structuredClone(DEFAULT[k])});
+if(!state.theme)state.theme=state.dark?"dark":"iconic";
 function save(){localStorage.setItem("moneywise",JSON.stringify(state))}
 function euro(n){return new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:2}).format(n)}
 function monthKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function monthLabel(k){let [y,m]=k.split("-");return new Date(+y,+m-1,1).toLocaleString(undefined,{month:"long",year:"numeric"})}
 function recurring(){return state.recurring.reduce((a,x)=>a+x[1],0)}
 function planned(){return recurring()+state.gifts+state.weekendFood+state.general}
-function months(){let keys=[...new Set(state.transactions.map(x=>x.month))];let now=monthKey();if(!keys.includes(now))keys.push(now);return keys.sort().reverse()}
+function months(){let keys=[...new Set(state.transactions.map(x=>x.month))],now=monthKey();if(!keys.includes(now))keys.push(now);return keys.sort().reverse()}
 function txs(k=monthKey()){return state.transactions.filter(x=>x.month===k)}
 function spent(k=monthKey()){return txs(k).reduce((a,x)=>a+x.amount,0)}
 function available(){return state.flexible+state.carry}
 function remaining(){return available()-spent()}
-function projected(){return state.startingSavings+(state.annualPay/12-planned()-state.flexible)*24}
-function render(tab="home"){document.body.classList.toggle("dark",!!state.dark);let app=document.getElementById("app");app.innerHTML=tab==="home"?home():tab==="spend"?spend():tab==="budget"?budget():plan();document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab))}
+function monthsInPlan(){return Math.max(1,Math.round(state.years*12))}
+function theoreticalMax(){return state.startingSavings+state.annualPay*state.years}
+function projected(){let m=monthsInPlan();return state.startingSavings+(state.annualPay/12-planned()-state.flexible)*m}
+function essentialsOutcome(){let m=monthsInPlan();return state.startingSavings+(state.annualPay/12-planned())*m}
+function render(tab="home"){
+ document.body.classList.toggle("dark",state.theme==="dark");
+ document.body.classList.toggle("iconic",state.theme==="iconic");
+ let app=document.getElementById("app");app.innerHTML=tab==="home"?home():tab==="spend"?spend():tab==="budget"?budget():plan();
+ document.querySelectorAll(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab))
+}
 function home(){
-let a=available(),r=remaining(),pct=a?Math.max(0,Math.min(100,spent()/a*100)):0;
-return `<div class="top"><h1>MoneyWise</h1><div class="muted">${new Date().toLocaleString(undefined,{month:"long",year:"numeric"})}</div></div>
-<div class="card"><div class="muted">Flexible spending left</div><div class="big">${euro(r)}</div><div class="progress"><div style="width:${pct}%"></div></div><div class="row small"><span>Spent ${euro(spent())}</span><span>Available ${euro(a)}</span></div><button onclick="openAdd()">Add spending</button></div>
-<div class="grid"><div class="metric"><span class="muted">Base allowance</span><b>${euro(state.flexible)}</b></div><div class="metric"><span class="muted">Carry-forward</span><b>${euro(state.carry)}</b></div></div>
-<div class="card"><b>Carried allowances</b>${state.carryHistory.length?state.carryHistory.slice().reverse().map((x,i)=>`<div class="item"><div class="row"><span>${monthLabel(x.from)} → ${monthLabel(x.to)}</span><b>${euro(x.amount)}</b></div><button class="secondary icon" onclick="editCarry(${state.carryHistory.length-1-i})">Edit</button><button class="danger icon" onclick="deleteCarry(${state.carryHistory.length-1-i})">Delete</button></div>`).join(""):'<p class="muted">No carried allowances yet.</p>'}<button class="secondary" onclick="carry()">Carry ${euro(Math.max(0,r))} forward</button></div>
-<div class="card"><div class="row"><b>Normal monthly spending</b><b>${euro(planned()+state.flexible)}</b></div><div class="muted">Planned costs ${euro(planned())} + flexible allowance ${euro(state.flexible)}</div></div>`;
+ let a=available(),r=remaining(),pct=a?Math.max(0,Math.min(100,spent()/a*100)):0;
+ return `<div class="top"><div style="display:flex;align-items:center;gap:10px"><img src="icon-192.png" style="width:36px;height:36px;border-radius:10px"><h1>MoneyWise</h1></div><div class="muted" style="margin-top:4px">${new Date().toLocaleString(undefined,{month:"long",year:"numeric"})}</div></div>
+ <div class="card hero"><div class="muted">Available this month</div><div class="big">${euro(r)}</div><div class="progress"><div style="width:${pct}%"></div></div><div class="row small"><span>Spent ${euro(spent())}</span><span>Available ${euro(a)}</span></div><button onclick="openAdd()">＋ Add spending</button></div>
+ <div class="grid"><div class="metric"><span class="muted">Base allowance</span><b>${euro(state.flexible)}</b></div><div class="metric"><span class="muted">Carried in</span><b>${euro(state.carry)}</b></div><div class="metric"><span class="muted">Target</span><b>${euro(state.target)}</b></div><div class="metric"><span class="muted">Projected</span><b>${euro(projected())}</b></div></div>
+ <div class="card"><div class="row"><b>Carried allowances</b><button class="secondary" onclick="carry()">＋ Carry unused</button></div>${state.carryHistory.length?state.carryHistory.slice().reverse().map((x,i)=>{let idx=state.carryHistory.length-1-i;return `<div class="item"><div class="row"><span>${monthLabel(x.from)} → ${monthLabel(x.to)}</span><b>${euro(x.amount)}</b></div><div style="text-align:right"><button class="icon" onclick="editCarry(${idx})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteCarry(${idx})" aria-label="Delete">⌫</button></div></div>`}).join(""):'<div class="empty">No carried allowances yet.</div>'}</div>`;
 }
 function spend(){
- const monthlyAvailable=state.flexible+state.carry;
- return `<div class="top"><h1>Spending</h1><div class="muted">Monthly spending history</div></div>
- <div class="card">
-   <div class="row"><b>Available this month</b><b>${euro(monthlyAvailable)}</b></div>
-   <div class="row small"><span>Base allowance</span><span>${euro(state.flexible)}</span></div>
-   <div class="row small"><span>Carried in</span><span>${euro(state.carry)}</span></div>
-   <div class="row"><b>Available to spend</b><b>${euro(monthlyAvailable-spent())}</b></div>
-   <div class="muted">This is your flexible spending money, not your recurring subscriptions/planned bills.</div>
- </div>
- <div class="card">
-   <div class="row"><b>Planned monthly costs</b><b>${euro(planned())}</b></div>
-   <div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div>
-   <div class="row small"><span>Gifts</span><span>${euro(state.gifts)}</span></div>
-   <div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div>
-   <div class="row small"><span>General</span><span>${euro(state.general)}</span></div>
-   <button class="secondary" onclick="editPlanned()">Edit flexible allowance</button>
- </div>
- <div class="card">${months().map(k=>{
-   let open=state.openMonths[k], total=spent(k), limit=state.flexible+(k===monthKey()?state.carry:0), diff=limit-total;
-   let cls=diff>=0?"under":"over", label=diff>=0?"Under limit":"Over limit";
-   return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')">
-     <div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span>
-     <span><b>${euro(total)}</b> <span class="chev">${open?"▲":"▼"}</span></span></div>
-     <div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div>
-   </div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><button class="danger icon" onclick="delTx('${x.id}')">Delete</button></div>`).join(""):'<p class="muted">No spending recorded.</p>'}</div>`:""}`;
- }).join("")}</div>
- <div class="card"><button onclick="openAdd()">+ Add spending</button></div>`;
+ return `<div class="top"><h1>Spending</h1><div class="muted">Monthly breakdown</div></div>
+ <div class="card hero"><div class="muted">Available this month</div><div class="big">${euro(available()-spent())}</div><div class="row small"><span>Base ${euro(state.flexible)}</span><span>Carried ${euro(state.carry)}</span><span>Spent ${euro(spent())}</span></div></div>
+ <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(state.gifts)}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button></div>
+ <div class="card">${months().map(k=>{let open=state.openMonths[k],total=spent(k),limit=state.flexible+(k===monthKey()?state.carry:0),diff=limit-total,cls=diff>=0?"under":"over",label=diff>=0?"Under limit":"Over limit";return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')"><div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span><span><b>${euro(total)}</b> ${open?"▲":"▼"}</span></div><div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><div style="text-align:right"><button class="icon delete" onclick="delTx('${x.id}')">⌫</button></div></div>`).join(""):'<div class="empty">No spending recorded.</div>'}</div>`:""}`}).join("")}</div>`;
 }
 function budget(){
-return `<div class="top"><h1>Budget</h1><div class="muted">Edit your planned costs</div></div>
-<div class="card"><div class="row"><b>Recurring expenses</b><b>${euro(recurring())}</b></div>${state.recurring.map((x,i)=>`<div class="item"><div class="row"><span>${esc(x[0])}</span><span>${euro(x[1])}/mo</span></div><button class="secondary icon" onclick="editRecurring(${i})">Edit</button><button class="danger icon" onclick="deleteRecurring(${i})">Delete</button></div>`).join("")}<button onclick="addRecurring()">+ Add recurring item</button></div>
-<div class="card"><div class="row"><b>Gifts</b><b>${euro(state.gifts)}/mo</b></div><div class="muted">Monthly equivalent of your annual gift budget.</div><button class="secondary" onclick="editGifts()">Edit gifts</button></div>
-<div class="card"><b>Other planned monthly spending</b><div class="row"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row"><span>General</span><span>${euro(state.general)}</span></div><div class="row"><b>Planned total</b><b>${euro(planned())}</b></div></div>`;
+ return `<div class="top"><h1>Budget</h1><div class="muted">Essentials & planned costs</div></div>
+ <div class="card"><div class="row"><b>Recurring expenses</b><b>${euro(recurring())}/mo</b></div>${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">€</span><span>${esc(x[0])}</span></span><span>${euro(x[1])}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button></div>
+ <div class="card"><div class="row"><b>Gifts & occasions</b><button class="secondary" onclick="editGifts()">✎ Edit</button></div><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">🎁</span><span>Gift budget</span></span><b>${euro(state.gifts)}/mo</b></div></div>
+ <div class="card"><div class="row"><b>Other Essentials</b><b>${euro(state.weekendFood+state.general)}/mo</b></div><div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editOther()">✎ Edit</button></div>
+ <div class="card"><div class="row"><b>Total Essentials</b><b>${euro(planned())}/mo</b></div></div>`;
 }
 function plan(){
-let max=state.startingSavings+state.annualPay*2,p=projected();
-return `<div class="top"><h1>2-Year Plan</h1><div class="muted">Current assumptions</div></div><div class="grid"><div class="metric"><span class="muted">Starting savings</span><b>${euro(state.startingSavings)}</b></div><div class="metric"><span class="muted">2-year income</span><b>${euro(state.annualPay*2)}</b></div><div class="metric"><span class="muted">Theoretical max</span><b>${euro(max)}</b></div><div class="metric"><span class="muted">Target</span><b>${euro(state.target)}</b></div></div>
-<div class="card"><div class="muted">Projected finish</div><div class="big">${euro(p)}</div><div class="row"><span>Buffer above target</span><b>${euro(p-state.target)}</b></div><p class="muted">The €${state.flexible} flexible allowance is included every month.</p><button class="secondary" onclick="settings()">Edit assumptions</button></div>
-<div class="card"><div class="toggle"><div><b>Dark mode</b><div class="muted">Use the darker MoneyWise theme</div></div><div class="switch ${state.dark?"on":""}" onclick="toggleDark()"><i></i></div></div></div>`;
+ let m=monthsInPlan(),p=projected(),ess=essentialsOutcome();
+ return `<div class="top"><h1>Plan</h1><div class="muted">${state.years} year${state.years==1?"":"s"} • ${m} months</div></div>
+ <div class="grid"><div class="metric"><span class="muted">Starting savings</span><b>${euro(state.startingSavings)}</b></div><div class="metric"><span class="muted">Annual income</span><b>${euro(state.annualPay)}</b></div><div class="metric"><span class="muted">Theoretical max</span><b>${euro(theoreticalMax())}</b></div><div class="metric"><span class="muted">Target</span><b>${euro(state.target)}</b></div></div>
+ <div class="card"><div class="muted">Projected finish</div><div class="big">${euro(p)}</div><div class="row"><span>Buffer above target</span><b>${euro(p-state.target)}</b></div><div class="muted">Includes Essentials and your additional monthly allowance.</div></div>
+ <div class="card"><div class="toggle"><div><b>Essentials-only outcome</b><div class="muted">Assumes nothing extra is spent from the Spend section.</div></div><div class="switch ${state.showEssentialsOutcome?"on":""}" onclick="toggleEssentials()"><i></i></div></div>${state.showEssentialsOutcome?`<div style="margin-top:18px"><div class="muted">Projected outcome</div><div class="big">${euro(ess)}</div><div class="row"><span>Buffer above target</span><b>${euro(ess-state.target)}</b></div></div>`:""}</div>
+ <div class="card"><b>Plan assumptions</b><div class="row small"><span>Timeframe</span><span>${state.years} years</span></div><div class="row small"><span>Starting savings</span><span>${euro(state.startingSavings)}</span></div><div class="row small"><span>Annual income</span><span>${euro(state.annualPay)}</span></div><div class="row small"><span>Target</span><span>${euro(state.target)}</span></div><div class="row small"><span>Additional monthly allowance</span><span>${euro(state.flexible)}</span></div><button class="secondary" onclick="settings()">✎ Edit plan</button></div>
+ <div class="card"><b>Appearance</b><div class="muted">Choose your MoneyWise look.</div><div class="theme-grid"><div class="theme-choice ${state.theme==="light"?"active":""}" onclick="setTheme('light')"><span class="theme-icon">☀️</span>Light</div><div class="theme-choice ${state.theme==="dark"?"active":""}" onclick="setTheme('dark')"><span class="theme-icon">🌙</span>Dark</div><div class="theme-choice ${state.theme==="iconic"?"active":""}" onclick="setTheme('iconic')"><span class="theme-icon">◈</span>Iconic</div></div></div>`;
 }
-function openAdd(){
-document.getElementById("sheet").innerHTML=`<h2>Add spending</h2><label>Description</label><input id="desc" placeholder="e.g. Dinner"><label>Amount (€)</label><input id="amount" type="number" step=".01" inputmode="decimal" placeholder="0"><label>Category</label><select id="cat"><option>General</option><option>Food</option><option>Entertainment</option><option>Clothes</option><option>Transport</option><option>Gifts</option><option>Holiday</option><option>Other</option></select><button onclick="addTx()">Add</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
-document.getElementById("modal").classList.add("open")}
-function addTx(){let desc=document.getElementById("desc").value.trim()||"Spending",amount=parseFloat(document.getElementById("amount").value);if(!amount||amount<=0)return alert("Enter a valid amount.");state.transactions.push({id:Date.now().toString(),month:monthKey(),desc,amount,cat:document.getElementById("cat").value});save();closeModal();render("spend")}
-function delTx(id){state.transactions=state.transactions.filter(x=>x.id!==id);save();render("spend")}
-function carry(){
- let r=Math.max(0,remaining());
- if(!r)return alert("There is no unused allowance to carry.");
- let from=monthKey(),d=new Date();d.setMonth(d.getMonth()+1);let to=monthKey(d);
- state.carryHistory.push({from,to,amount:r});
- state.carry=r;save();render("home")
-}
-function editCarry(i){
- let x=state.carryHistory[i];
- document.getElementById("sheet").innerHTML=`<h2>Edit carried allowance</h2>
- <div class="muted">${monthLabel(x.from)} → ${monthLabel(x.to)}</div>
- <label>Carried amount (€)</label><input id="ca" type="number" step=".01" value="${x.amount}">
- <button onclick="saveCarry(${i})">Save</button>
- <button class="secondary" onclick="closeModal()">Cancel</button>`;
+function showSetup(){
+ document.getElementById("sheet").innerHTML=`<h2>Welcome to MoneyWise</h2><p class="muted">Enter your private planning assumptions. They are stored only on this device.</p>${field("Timeframe (years)","sy",2,".5")}${field("Starting savings (€)","ss","",".01")}${field("Annual income (€)","si",""," .01")}${field("Target savings (€)","st",""," .01")}${field("Additional monthly allowance (€)","sf",""," .01")}<button onclick="finishSetup()">Save private plan</button>`;
  document.getElementById("modal").classList.add("open")
 }
-function saveCarry(i){
- let a=parseFloat(document.getElementById("ca").value);
- if(isNaN(a)||a<0)return alert("Enter a valid amount.");
- state.carryHistory[i].amount=a;
- state.carry=a;
- save();closeModal();render("home")
-}
-function deleteCarry(i){
- if(confirm("Delete this carried allowance?")){
-   state.carryHistory.splice(i,1);
-   state.carry=state.carryHistory.length?state.carryHistory[state.carryHistory.length-1].amount:0;
-   save();render("home")
- }
-}
+function finishSetup(){state.years=Math.max(.5,parseFloat(document.getElementById("sy").value)||2);state.startingSavings=Math.max(0,parseFloat(document.getElementById("ss").value)||0);state.annualPay=Math.max(0,parseFloat(document.getElementById("si").value)||0);state.target=Math.max(0,parseFloat(document.getElementById("st").value)||0);state.flexible=Math.max(0,parseFloat(document.getElementById("sf").value)||0);state.configured=true;save();closeModal();render("home")}
+function openAdd(){document.getElementById("sheet").innerHTML=`<h2>Add spending</h2><label>Description</label><input id="desc" placeholder="e.g. Dinner"><label>Amount (€)</label><input id="amount" type="number" step=".01"><label>Category</label><select id="cat"><option>General</option><option>Food</option><option>Entertainment</option><option>Clothes</option><option>Transport</option><option>Gifts</option><option>Holiday</option><option>Other</option></select><button onclick="addTx()">Add</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function addTx(){let desc=document.getElementById("desc").value.trim()||"Spending",amount=parseFloat(document.getElementById("amount").value);if(!amount||amount<=0)return alert("Enter a valid amount.");state.transactions.push({id:Date.now().toString(),month:monthKey(),desc,amount,cat:document.getElementById("cat").value});save();closeModal();render("spend")}
+function delTx(id){state.transactions=state.transactions.filter(x=>x.id!==id);save();render("spend")}
+function carry(){let r=Math.max(0,remaining());if(!r)return alert("There is no unused allowance to carry.");let from=monthKey(),d=new Date();d.setMonth(d.getMonth()+1);let to=monthKey(d);state.carryHistory.push({from,to,amount:r});state.carry=r;save();render("home")}
+function editCarry(i){let x=state.carryHistory[i];document.getElementById("sheet").innerHTML=`<h2>Edit carried allowance</h2><div class="muted">${monthLabel(x.from)} → ${monthLabel(x.to)}</div><label>Amount (€)</label><input id="ca" type="number" step=".01" value="${x.amount}"><button onclick="saveCarry(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveCarry(i){let a=parseFloat(document.getElementById("ca").value);if(isNaN(a)||a<0)return alert("Enter a valid amount.");state.carryHistory[i].amount=a;state.carry=a;save();closeModal();render("home")}
+function deleteCarry(i){if(confirm("Delete this carried allowance?")){state.carryHistory.splice(i,1);state.carry=state.carryHistory.length?state.carryHistory[state.carryHistory.length-1].amount:0;save();render("home")}}
 function toggleMonth(k){state.openMonths[k]=!state.openMonths[k];save();render("spend")}
-function editPlanned(){document.getElementById("sheet").innerHTML=`<h2>Planned monthly spending</h2><div class="muted">This changes the target monthly planned figure only; individual budget categories remain editable in Budget.</div><label>Flexible allowance (€)</label><input id="flex" type="number" step=".01" value="${state.flexible}"><button onclick="saveFlex()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
-function saveFlex(){state.flexible=parseFloat(document.getElementById("flex").value)||0;save();closeModal();render("spend")}
+function editPlanned(){document.getElementById("sheet").innerHTML=`<h2>Additional allowance</h2><div class="muted">This is money available for spending from the Spend section.</div>${field("Monthly allowance (€)","fa",state.flexible,".01")}<button onclick="saveFlex()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveFlex(){state.flexible=Math.max(0,parseFloat(document.getElementById("fa").value)||0);save();closeModal();render("spend")}
 function addRecurring(){editRecurring(-1)}
-function editRecurring(i){let x=i>=0?state.recurring[i]:["",0];document.getElementById("sheet").innerHTML=`<h2>${i>=0?"Edit":"Add"} recurring expense</h2><label>Name</label><input id="rn" value="${esc(x[0])}"><label>Monthly amount (€)</label><input id="ra" type="number" step=".01" value="${x[1]}"><button onclick="saveRecurring(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
-function saveRecurring(i){let n=document.getElementById("rn").value.trim();let a=parseFloat(document.getElementById("ra").value)||0;if(!n)return;if(i>=0)state.recurring[i]=[n,a];else state.recurring.push([n,a]);save();closeModal();render("budget")}
+function editRecurring(i){let x=i>=0?state.recurring[i]:["",0];document.getElementById("sheet").innerHTML=`<h2>${i>=0?"Edit":"Add"} recurring expense</h2>${field("Name","rn",x[0])}${field("Monthly amount (€)","ra",x[1],".01")}<button onclick="saveRecurring(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveRecurring(i){let n=document.getElementById("rn").value.trim(),a=parseFloat(document.getElementById("ra").value)||0;if(!n)return;if(i>=0)state.recurring[i]=[n,a];else state.recurring.push([n,a]);save();closeModal();render("budget")}
 function deleteRecurring(i){if(confirm("Delete this recurring expense?")){state.recurring.splice(i,1);save();render("budget")}}
-function editGifts(){document.getElementById("sheet").innerHTML=`<h2>Gift budget</h2><div class="muted">Enter the monthly equivalent you want included in your plan.</div><label>Monthly gifts (€)</label><input id="ga" type="number" step=".01" value="${state.gifts}"><button onclick="saveGifts()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
-function saveGifts(){state.gifts=parseFloat(document.getElementById("ga").value)||0;save();closeModal();render("budget")}
-function settings(){document.getElementById("sheet").innerHTML=`<h2>Edit assumptions</h2>${field("Starting savings","startingSavings",state.startingSavings)}${field("Annual pay","annualPay",state.annualPay)}${field("2-year target","target",state.target)}${field("Flexible monthly allowance","flexible",state.flexible)}<button onclick="saveSettings()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button><button class="danger" onclick="resetApp()">Reset app</button>`;document.getElementById("modal").classList.add("open")}
-function field(label,id,val){return `<label>${label}</label><input id="${id}" type="number" step=".01" value="${val}">`}
-function saveSettings(){["startingSavings","annualPay","target","flexible"].forEach(k=>state[k]=parseFloat(document.getElementById(k).value)||0);save();closeModal();render("plan")}
-function resetApp(){if(confirm("Reset MoneyWise to the original plan?")){state=structuredClone(DEFAULT);save();closeModal();render("home")}}
-function toggleDark(){state.dark=!state.dark;save();render("plan")}
+function editGifts(){document.getElementById("sheet").innerHTML=`<h2>Gift budget</h2>${field("Monthly gifts (€)","ga",state.gifts,".01")}<button onclick="saveGifts()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveGifts(){state.gifts=Math.max(0,parseFloat(document.getElementById("ga").value)||0);save();closeModal();render("budget")}
+function editOther(){document.getElementById("sheet").innerHTML=`<h2>Other Essentials</h2>${field("Weekend food (€ / month)","wf",state.weekendFood,".01")}${field("General (€ / month)","ge",state.general,".01")}<button onclick="saveOther()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveOther(){state.weekendFood=Math.max(0,parseFloat(document.getElementById("wf").value)||0);state.general=Math.max(0,parseFloat(document.getElementById("ge").value)||0);save();closeModal();render("budget")}
+function settings(){document.getElementById("sheet").innerHTML=`<h2>Edit plan</h2><p class="muted">These values are stored locally on this device.</p>${field("Timeframe (years)","py",state.years,".5")}${field("Starting savings (€)","ps",state.startingSavings,".01")}${field("Annual income (€)","pi",state.annualPay,".01")}${field("Target savings (€)","pt",state.target,".01")}${field("Additional monthly allowance (€)","pf",state.flexible,".01")}<button onclick="saveSettings()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveSettings(){state.years=Math.max(.5,parseFloat(document.getElementById("py").value)||2);state.startingSavings=Math.max(0,parseFloat(document.getElementById("ps").value)||0);state.annualPay=Math.max(0,parseFloat(document.getElementById("pi").value)||0);state.target=Math.max(0,parseFloat(document.getElementById("pt").value)||0);state.flexible=Math.max(0,parseFloat(document.getElementById("pf").value)||0);save();closeModal();render("plan")}
+function field(label,id,val,step=".01"){return `<label>${label}</label><input id="${id}" type="number" min="0" step="${step}" value="${val===undefined?"":val}">`}
+function setTheme(t){state.theme=t;state.dark=t==="dark";save();render("plan")}
+function toggleEssentials(){state.showEssentialsOutcome=!state.showEssentialsOutcome;save();render("plan")}
 function closeModal(){document.getElementById("modal").classList.remove("open")}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>render(b.dataset.tab)));
-render("home");
-</script></body></html>
+render("home");if(!state.configured)setTimeout(showSetup,180);
+</script>
+</body>
+</html>

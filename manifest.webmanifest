@@ -3,9 +3,8 @@
   "short_name": "MoneyWise",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#064e3b",
-  "theme_color": "#064e3b",
-  "description": "Personal savings and spending tracker.",
+  "background_color": "#07583d",
+  "theme_color": "#07583d",
   "icons": [
     {
       "src": "icon-192.png",
