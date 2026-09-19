@@ -1,25 +1,46 @@
-# MoneyWise PWA
+# MoneyWise
 
-A mobile-first MoneyWise budgeting app preloaded with the savings plan.
+MoneyWise is a lightweight, mobile-first personal budgeting and savings-planning Progressive Web App.
 
-## Included
-- €288/month flexible allowance
-- All subscriptions, car costs, gifts, weekend food and €100 general discretionary budget
-- Gym benefit breakdown
-- Monthly spending entry and deletion
-- Carry-forward of unused flexible money
-- Two-year projection
-- Local browser storage
+## Project aim
 
-## Put it online
-Upload these three files to any static HTTPS host:
-- index.html
-- manifest.webmanifest
-- sw.js
+MoneyWise helps users:
 
-GitHub Pages, Cloudflare Pages and Netlify are suitable static hosts.
+- Track everyday and discretionary spending.
+- Separate planned essentials from additional spending.
+- Manage monthly allowances and carry unused amounts forward.
+- Review spending by month with clear under/over indicators.
+- Add, edit and manage recurring expenses and gift budgets.
+- Build savings plans over a configurable timeframe.
+- Compare a normal projected outcome with an essentials-only outcome.
+- Adjust timeframe, starting savings, income, targets and monthly allowances.
+- Use the app on iPhone through Safari and Add to Home Screen.
+- Keep personal financial data stored locally on the user's device.
 
-## iPhone
-Open the HTTPS URL in Safari, tap Share, then Add to Home Screen. The app runs standalone and stores your spending locally in the browser on that device.
+## Privacy
 
-No server/database is required for the basic version.
+This public repository contains application code and generic project assets only.
+
+Personal financial assumptions are not embedded in the public source. On first launch, MoneyWise asks the user to enter their own values. Those values are stored in the device/browser's local storage and are not uploaded to this repository.
+
+Do not commit exported personal data or screenshots containing private financial information.
+
+## Running
+
+MoneyWise is a static PWA and can be hosted on GitHub Pages or another static HTTPS host.
+
+On iPhone, open the hosted site in Safari and choose **Share → Add to Home Screen**.
+
+## Files
+
+- `index.html` — application interface and logic
+- `manifest.webmanifest` — PWA metadata
+- `sw.js` — service worker/offline cache
+- `icon-192.png` / `icon-512.png` — MoneyWise Home Screen icons
+- `README.md` — public project documentation
+
+## Assets
+
+The MoneyWise coin-stack and growth-arrow logo is included as the PWA/Home Screen icon.
+
+Private financial screenshots and personal sample values are intentionally not included in the public project.
