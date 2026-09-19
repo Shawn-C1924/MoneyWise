@@ -3,9 +3,6 @@
 A mobile-first MoneyWise budgeting app preloaded with the savings plan.
 
 ## Included
-- €34,000 starting savings
-- €32,000 annual pay assumption
-- €75,000 two-year target
 - €288/month flexible allowance
 - All subscriptions, car costs, gifts, weekend food and €100 general discretionary budget
 - Gym benefit breakdown
