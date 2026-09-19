@@ -21,7 +21,7 @@ button{border:0;border-radius:12px;padding:12px 14px;font-weight:650;background:
 input,select{width:100%;padding:12px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:10px;font-size:16px;margin:5px 0 10px}
 .item{padding:12px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.small{font-size:13px}
 .modal{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:var(--card);color:var(--text);width:100%;border-radius:22px 22px 0 0;padding:20px 18px 30px;max-height:90vh;overflow:auto}
-.section-title{font-size:18px;font-weight:750;margin:20px 14px 8px}.month-head{cursor:pointer;padding:14px 0}.chev{font-size:13px;color:var(--muted)}
+.section-title{font-size:18px;font-weight:750;margin:20px 14px 8px}.month-head{cursor:pointer;padding:14px 12px;margin:0 -6px;border-radius:12px}.month-head.under{background:#dcfce7}.month-head.over{background:#fee2e2}.dark .month-head.under{background:#16351f}.dark .month-head.over{background:#3b2024}.status{font-size:12px;font-weight:750;margin-left:6px}.under .status{color:#166534}.over .status{color:#991b1b}.dark .under .status{color:#86efac}.dark .over .status{color:#fecaca}
 .settings-row{padding:10px 0;border-bottom:1px solid var(--line)}
 .toggle{display:flex;justify-content:space-between;align-items:center}
 .switch{width:50px;height:30px;border-radius:20px;background:#9ca3af;padding:3px;cursor:pointer}.switch i{display:block;width:24px;height:24px;border-radius:50%;background:white;transition:.2s}.switch.on{background:#22c55e}.switch.on i{transform:translateX(20px)}
@@ -61,14 +61,37 @@ let a=available(),r=remaining(),pct=a?Math.max(0,Math.min(100,spent()/a*100)):0;
 return `<div class="top"><h1>MoneyWise</h1><div class="muted">${new Date().toLocaleString(undefined,{month:"long",year:"numeric"})}</div></div>
 <div class="card"><div class="muted">Flexible spending left</div><div class="big">${euro(r)}</div><div class="progress"><div style="width:${pct}%"></div></div><div class="row small"><span>Spent ${euro(spent())}</span><span>Available ${euro(a)}</span></div><button onclick="openAdd()">Add spending</button></div>
 <div class="grid"><div class="metric"><span class="muted">Base allowance</span><b>${euro(state.flexible)}</b></div><div class="metric"><span class="muted">Carry-forward</span><b>${euro(state.carry)}</b></div></div>
-<div class="card"><b>Carried allowances</b>${state.carryHistory.length?state.carryHistory.slice().reverse().map((x,i)=>`<div class="item"><div class="row"><span>${monthLabel(x.from)} → ${monthLabel(x.to)}</span><b>${euro(x.amount)}</b></div><button class="danger icon" onclick="deleteCarry(${state.carryHistory.length-1-i})">Delete</button></div>`).join(""):'<p class="muted">No carried allowances yet.</p>'}<button class="secondary" onclick="carry()">Carry ${euro(Math.max(0,r))} forward</button></div>
+<div class="card"><b>Carried allowances</b>${state.carryHistory.length?state.carryHistory.slice().reverse().map((x,i)=>`<div class="item"><div class="row"><span>${monthLabel(x.from)} → ${monthLabel(x.to)}</span><b>${euro(x.amount)}</b></div><button class="secondary icon" onclick="editCarry(${state.carryHistory.length-1-i})">Edit</button><button class="danger icon" onclick="deleteCarry(${state.carryHistory.length-1-i})">Delete</button></div>`).join(""):'<p class="muted">No carried allowances yet.</p>'}<button class="secondary" onclick="carry()">Carry ${euro(Math.max(0,r))} forward</button></div>
 <div class="card"><div class="row"><b>Normal monthly spending</b><b>${euro(planned()+state.flexible)}</b></div><div class="muted">Planned costs ${euro(planned())} + flexible allowance ${euro(state.flexible)}</div></div>`;
 }
 function spend(){
-return `<div class="top"><h1>Spending</h1><div class="muted">Monthly spending history</div></div>
-<div class="card"><div class="row"><b>Planned monthly spending</b><b>${euro(planned()+state.flexible)}</b></div><button class="secondary" onclick="editPlanned()">Edit planned value</button></div>
-<div class="card">${months().map(k=>{let open=state.openMonths[k];return `<div class="month-head" onclick="toggleMonth('${k}')"><div class="row"><b>${monthLabel(k)}</b><span><b>${euro(spent(k))}</b> <span class="chev">${open?"▲":"▼"}</span></span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><button class="danger icon" onclick="delTx('${x.id}')">Delete</button></div>`).join(""):'<p class="muted">No spending recorded.</p>'}</div>`:""}`}).join("")}</div>
-<div class="card"><button onclick="openAdd()">+ Add spending</button></div>`;
+ const monthlyAvailable=state.flexible+state.carry;
+ return `<div class="top"><h1>Spending</h1><div class="muted">Monthly spending history</div></div>
+ <div class="card">
+   <div class="row"><b>Available this month</b><b>${euro(monthlyAvailable)}</b></div>
+   <div class="row small"><span>Base allowance</span><span>${euro(state.flexible)}</span></div>
+   <div class="row small"><span>Carried in</span><span>${euro(state.carry)}</span></div>
+   <div class="row"><b>Available to spend</b><b>${euro(monthlyAvailable-spent())}</b></div>
+   <div class="muted">This is your flexible spending money, not your recurring subscriptions/planned bills.</div>
+ </div>
+ <div class="card">
+   <div class="row"><b>Planned monthly costs</b><b>${euro(planned())}</b></div>
+   <div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div>
+   <div class="row small"><span>Gifts</span><span>${euro(state.gifts)}</span></div>
+   <div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div>
+   <div class="row small"><span>General</span><span>${euro(state.general)}</span></div>
+   <button class="secondary" onclick="editPlanned()">Edit flexible allowance</button>
+ </div>
+ <div class="card">${months().map(k=>{
+   let open=state.openMonths[k], total=spent(k), limit=state.flexible+(k===monthKey()?state.carry:0), diff=limit-total;
+   let cls=diff>=0?"under":"over", label=diff>=0?"Under limit":"Over limit";
+   return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')">
+     <div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span>
+     <span><b>${euro(total)}</b> <span class="chev">${open?"▲":"▼"}</span></span></div>
+     <div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div>
+   </div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><button class="danger icon" onclick="delTx('${x.id}')">Delete</button></div>`).join(""):'<p class="muted">No spending recorded.</p>'}</div>`:""}`;
+ }).join("")}</div>
+ <div class="card"><button onclick="openAdd()">+ Add spending</button></div>`;
 }
 function budget(){
 return `<div class="top"><h1>Budget</h1><div class="muted">Edit your planned costs</div></div>
@@ -87,8 +110,36 @@ document.getElementById("sheet").innerHTML=`<h2>Add spending</h2><label>Descript
 document.getElementById("modal").classList.add("open")}
 function addTx(){let desc=document.getElementById("desc").value.trim()||"Spending",amount=parseFloat(document.getElementById("amount").value);if(!amount||amount<=0)return alert("Enter a valid amount.");state.transactions.push({id:Date.now().toString(),month:monthKey(),desc,amount,cat:document.getElementById("cat").value});save();closeModal();render("spend")}
 function delTx(id){state.transactions=state.transactions.filter(x=>x.id!==id);save();render("spend")}
-function carry(){let r=Math.max(0,remaining());if(!r)return alert("There is no unused allowance to carry.");let from=monthKey(),d=new Date();d.setMonth(d.getMonth()+1);let to=monthKey(d);state.carryHistory.push({from,to,amount:r});state.carry=r;save();render("home")}
-function deleteCarry(i){if(confirm("Delete this carried allowance?")){state.carryHistory.splice(i,1);state.carry=state.carryHistory.length?state.carryHistory[state.carryHistory.length-1].amount:0;save();render("home")}}
+function carry(){
+ let r=Math.max(0,remaining());
+ if(!r)return alert("There is no unused allowance to carry.");
+ let from=monthKey(),d=new Date();d.setMonth(d.getMonth()+1);let to=monthKey(d);
+ state.carryHistory.push({from,to,amount:r});
+ state.carry=r;save();render("home")
+}
+function editCarry(i){
+ let x=state.carryHistory[i];
+ document.getElementById("sheet").innerHTML=`<h2>Edit carried allowance</h2>
+ <div class="muted">${monthLabel(x.from)} → ${monthLabel(x.to)}</div>
+ <label>Carried amount (€)</label><input id="ca" type="number" step=".01" value="${x.amount}">
+ <button onclick="saveCarry(${i})">Save</button>
+ <button class="secondary" onclick="closeModal()">Cancel</button>`;
+ document.getElementById("modal").classList.add("open")
+}
+function saveCarry(i){
+ let a=parseFloat(document.getElementById("ca").value);
+ if(isNaN(a)||a<0)return alert("Enter a valid amount.");
+ state.carryHistory[i].amount=a;
+ state.carry=a;
+ save();closeModal();render("home")
+}
+function deleteCarry(i){
+ if(confirm("Delete this carried allowance?")){
+   state.carryHistory.splice(i,1);
+   state.carry=state.carryHistory.length?state.carryHistory[state.carryHistory.length-1].amount:0;
+   save();render("home")
+ }
+}
 function toggleMonth(k){state.openMonths[k]=!state.openMonths[k];save();render("spend")}
 function editPlanned(){document.getElementById("sheet").innerHTML=`<h2>Planned monthly spending</h2><div class="muted">This changes the target monthly planned figure only; individual budget categories remain editable in Budget.</div><label>Flexible allowance (€)</label><input id="flex" type="number" step=".01" value="${state.flexible}"><button onclick="saveFlex()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveFlex(){state.flexible=parseFloat(document.getElementById("flex").value)||0;save();closeModal();render("spend")}
