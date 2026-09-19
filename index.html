@@ -28,43 +28,41 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 .theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.theme-choice{padding:13px 6px;border:1px solid var(--line);border-radius:14px;text-align:center;background:var(--soft);cursor:pointer}.theme-choice.active{border:2px solid var(--accent);padding:12px 5px}.theme-icon{font-size:23px;display:block;margin-bottom:4px}.empty{text-align:center;padding:18px 0;color:var(--muted)}
 </style>
 
+
+
 <style id="nav-icon-polish">
-.nav-symbol{
+.nav-icon{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:22px;
-  height:22px;
+  width:24px;
+  height:24px;
   line-height:1;
   font-weight:800;
-  font-size:18px;
   font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
 }
-.nav-money{
-  font-size:20px;
+.money-icon{
+  font-size:21px;
   letter-spacing:-1px;
 }
-.nav-graph{
-  position:relative;
-  font-size:26px;
-  font-weight:700;
-  transform:rotate(-18deg);
-  letter-spacing:-6px;
+.graph-icon svg{
+  width:23px;
+  height:23px;
 }
 </style>
-
 </head>
 <body>
 <div id="app" class="app"></div>
 <div class="nav">
-<button data-tab="home" class="active"><span>⌂</span>Home</button>
-<button data-tab="spend"><span>▣</span>Spend</button>
-<button data-tab="budget"><span>☷</span>Budget</button>
-<button data-tab="plan"><span>▥</span>Plan</button>
+<button data-tab="home" class="active"><span class="nav-icon">⌂</span>Home</button>
+<button data-tab="spend"><span class="nav-icon money-icon" aria-hidden="true">$</span>Spend</button>
+<button data-tab="budget"><span class="nav-icon">☷</span>Budget</button>
+<button data-tab="plan"><span class="nav-icon graph-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V6"/><path d="M4 18h16"/><path d="m7 15 4-4 3 2 5-6"/></svg></span>Plan</button>
 </div>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 <script>
-const DEFAULT={configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
+const DATA_VERSION="0.9";
+const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
       {name:"F1",amount:50,frequency:"yearly"},
@@ -81,14 +79,25 @@ const DEFAULT={configured:true,startingSavings:34000,annualPay:32000,target:7500
       {name:"Car insurance",amount:400,frequency:"yearly"},
       {name:"Car license",amount:300,frequency:"yearly"}
     ],gifts:100,weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],dark:false,theme:"iconic",openMonths:{}};
-let state;try{state=JSON.parse(localStorage.getItem("moneywise")||"null")||structuredClone(DEFAULT)}catch(e){state=structuredClone(DEFAULT)}
+let state;
+try{
+  const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
+  state=(saved&&saved.version===DATA_VERSION)?saved:structuredClone(DEFAULT);
+}catch(e){
+  state=structuredClone(DEFAULT);
+}
 Object.keys(DEFAULT).forEach(k=>{if(state[k]===undefined)state[k]=structuredClone(DEFAULT[k])});
 if(!state.theme)state.theme=state.dark?"dark":"iconic";
 function save(){localStorage.setItem("moneywise",JSON.stringify(state))}
 function euro(n){return new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:2}).format(n)}
 function monthKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function monthLabel(k){let [y,m]=k.split("-");return new Date(+y,+m-1,1).toLocaleString(undefined,{month:"long",year:"numeric"})}
-function recurring(){return state.recurring.reduce((a,x)=>a+x[1],0)}
+function recurring(){
+  return state.recurring.reduce((a,x)=>{
+    const amount=Number(x.amount)||0;
+    return a+(x.frequency==="yearly"?amount/12:amount);
+  },0);
+}
 function planned(){return recurring()+state.gifts+state.weekendFood+state.general}
 function months(){let keys=[...new Set(state.transactions.map(x=>x.month))],now=monthKey();if(!keys.includes(now))keys.push(now);return keys.sort().reverse()}
 function txs(k=monthKey()){return state.transactions.filter(x=>x.month===k)}
@@ -120,7 +129,7 @@ function spend(){
 }
 function budget(){
  return `<div class="top"><h1>Budget</h1><div class="muted">Essentials & planned costs</div></div>
- <div class="card"><div class="row"><b>Recurring expenses</b><b>${euro(recurring())}/mo</b></div>${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">€</span><span>${esc(x[0])}</span></span><span>${euro(x[1])}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button></div>
+ <div class="card"><div class="row"><b>Recurring expenses</b><b>${euro(recurring())}/mo</b></div>${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">€</span><span>${esc(x.name)}</span></span><span>${euro(x.frequency==="yearly"?Number(x.amount)/12:Number(x.amount))}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button></div>
  <div class="card"><div class="row"><b>Gifts & occasions</b><button class="secondary" onclick="editGifts()">✎ Edit</button></div><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">🎁</span><span>Gift budget</span></span><b>${euro(state.gifts)}/mo</b></div></div>
  <div class="card"><div class="row"><b>Other Essentials</b><b>${euro(state.weekendFood+state.general)}/mo</b></div><div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editOther()">✎ Edit</button></div>
  <div class="card"><div class="row"><b>Total Essentials</b><b>${euro(planned())}/mo</b></div></div>`;
