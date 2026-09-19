@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111827">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MoneyWise">
+<link rel="manifest" href="manifest.webmanifest">
+<title>MoneyWise</title>
+<style>
+:root{--bg:#f5f6f8;--card:#fff;--text:#111827;--muted:#6b7280;--line:#e5e7eb;--blue:#2563eb;--green:#16a34a;--red:#dc2626;--amber:#d97706}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",Inter,system-ui,sans-serif}
+button,input,select{font:inherit}button{cursor:pointer}.app{max-width:760px;margin:auto;padding:env(safe-area-inset-top) 16px calc(90px + env(safe-area-inset-bottom))}
+header{padding:18px 2px 8px;display:flex;justify-content:space-between;align-items:center}h1{font-size:28px;margin:0;font-weight:800;letter-spacing:-.8px}h2{font-size:18px;margin:0 0 12px}h3{font-size:15px;margin:0 0 8px}.muted{color:var(--muted);font-size:13px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin:12px 0}.hero{background:linear-gradient(135deg,#111827,#26344d);color:#fff;border:0}.hero .muted{color:#cbd5e1}
+.hero .big{font-size:42px;font-weight:800;letter-spacing:-1.5px;margin:3px 0}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#f8fafc;border-radius:15px;padding:13px}.stat .num{font-size:20px;font-weight:750;margin-top:3px}.row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.positive{color:var(--green)}.negative{color:var(--red)}.warning{color:var(--amber)}
+.progress{height:9px;background:#334155;border-radius:99px;overflow:hidden;margin:11px 0 5px}.bar{height:100%;background:#60a5fa;border-radius:99px}
+.tabs{position:fixed;left:0;right:0;bottom:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(255,255,255,.94);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:10}.tab{border:0;background:none;color:var(--muted);font-size:11px;padding:7px 3px}.tab.active{color:var(--blue);font-weight:700}.tab .ico{display:block;font-size:21px;margin-bottom:2px}
+.primary{width:100%;border:0;background:var(--blue);color:#fff;border-radius:13px;padding:13px;font-weight:750}.secondary{border:1px solid var(--line);background:#fff;color:var(--text);border-radius:12px;padding:10px 12px;font-weight:650}.danger{color:var(--red);background:#fff1f2;border-color:#fecdd3}.form{display:grid;gap:10px}.form label{font-size:12px;color:var(--muted)}input,select{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;outline:none}input:focus,select:focus{border-color:var(--blue);box-shadow:0 0 0 3px #2563eb18}.actions{display:flex;gap:8px;flex-wrap:wrap}.pill{font-size:11px;padding:4px 8px;border-radius:99px;background:#eef2ff;color:#3730a3}.expense{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.expense:last-child{border:0}.empty{padding:15px 0;color:var(--muted);font-size:14px}.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}.small{font-size:12px}.notice{background:#eff6ff;border:1px solid #bfdbfe;border-radius:14px;padding:12px;font-size:13px}.target{background:#ecfdf5;border:1px solid #bbf7d0}.modal{position:fixed;inset:0;background:#0007;z-index:30;display:none;align-items:flex-end}.modal.show{display:flex}.sheet{background:#fff;width:100%;max-width:760px;margin:auto 0 0;border-radius:22px 22px 0 0;padding:20px;max-height:90%;overflow:auto}.close{float:right;border:0;background:#f3f4f6;border-radius:50%;width:36px;height:36px}.hidden{display:none!important}
+@media(min-width:760px){.modal{align-items:center;padding:20px}.sheet{border-radius:22px;max-width:520px;margin:auto}}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="tabs" id="tabs">
+<button class="tab active" data-tab="home"><span class="ico">⌂</span>Home</button>
+<button class="tab" data-tab="spend"><span class="ico">＋</span>Spend</button>
+<button class="tab" data-tab="budget"><span class="ico">☷</span>Budget</button>
+<button class="tab" data-tab="plan"><span class="ico">↗</span>Plan</button>
+</div>
+<div class="modal" id="modal"><div class="sheet"><button class="close" id="closeModal">×</button><div id="modalBody"></div></div></div>
+<script>
+const KEY="moneywise-v1";
+const seed={
+ settings:{starting:34000,income:32000,target:75000,flex:288,monthStart:null},
+ expenses:[], carry:0,
+ budget:[
+ ["Subscriptions","Gas","Monthly",40,true,""],
+ ["Subscriptions","Xiaomi","Monthly",3.50,true,""],
+ ["Subscriptions","F1","Yearly",50,false,""],
+ ["Subscriptions","iCloud","Monthly",12,true,""],
+ ["Subscriptions","ChatGPT","Monthly",8,false,""],
+ ["Subscriptions","Netflix","Monthly",20,false,""],
+ ["Subscriptions","Gamepass","Monthly",20,false,""],
+ ["Subscriptions","YouTube","Monthly",0.80,false,""],
+ ["Subscriptions","Mobile plan","Monthly",17.15,true,""],
+ ["Subscriptions","iRacing","Monthly",8,false,""],
+ ["Subscriptions","Hair","Monthly",28,false,""],
+ ["Subscriptions","Cloudigo","Monthly",3.40,true,""],
+ ["Subscriptions","Gym","Yearly",180,true,"Original €440; €60 Cloudigo + €200 work benefit"],
+ ["Car","Insurance","Yearly",400,true,""],
+ ["Car","License","Yearly",300,true,""]
+ ]};
+let state=load(); let tab="home";
+function load(){try{const x=JSON.parse(localStorage.getItem(KEY));return x||structuredClone(seed)}catch(e){return structuredClone(seed)}}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function euro(n){return new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR"}).format(n)}
+function monthKey(d=new Date()){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`}
+function monthName(){return new Intl.DateTimeFormat("en-GB",{month:"long",year:"numeric"}).format(new Date())}
+function monthlyBudget(){return state.budget.reduce((s,x)=>s+(x[2]==="Monthly"?x[3]:x[3]/12),0)}
+function gifts(){return 100}
+function food(){return 40*52/12}
+function general(){return 100}
+function planned(){return monthlyBudget()+gifts()+food()+general()}
+function spentThis(){const k=monthKey();return state.expenses.filter(x=>x.month===k).reduce((s,x)=>s+x.amount,0)}
+function available(){return state.settings.flex+state.carry-spentThis()}
+function monthlyIncome(){return state.settings.income/12}
+function projected(){return state.settings.starting+(monthlyIncome()-planned()-state.settings.flex)*24}
+function targetRoom(){return projected()-state.settings.target}
+function render(){document.getElementById("app").innerHTML=views[tab]();document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b.dataset.tab===tab));bind()}
+function setTab(t){tab=t;render()}
+function views(){return{
+home:()=>`<div class="app"><header><h1>MoneyWise</h1><span class="pill">${monthName()}</span></header>
+<div class="card hero"><div class="muted">Flexible spending remaining</div><div class="big">${euro(available())}</div><div class="muted">${euro(spentThis())} spent of ${euro(state.settings.flex+state.carry)} available</div><div class="progress"><div class="bar" style="width:${Math.min(100,Math.max(0,spentThis()/(state.settings.flex+state.carry||1)*100))}%"></div></div></div>
+<div class="grid"><div class="stat"><div class="muted">Base allowance</div><div class="num">${euro(state.settings.flex)}</div></div><div class="stat"><div class="muted">Carry-forward</div><div class="num positive">${euro(state.carry)}</div></div></div>
+<div class="card"><div class="section-title"><h2>This month</h2><button class="secondary" data-action="add">Add spending</button></div>${expenseRows()}</div>
+<div class="card target"><h2>€75k target</h2><div class="row"><span>Projected finish</span><strong>${euro(projected())}</strong></div><div class="row"><span>Buffer above target</span><strong class="${targetRoom()<0?'negative':'positive'}">${euro(targetRoom())}</strong></div></div>
+<div class="card"><h2>Month rollover</h2><div class="row"><span>Unused right now</span><strong>${euro(Math.max(0,available()))}</strong></div><div class="row"><span>Next month's allowance if closed</span><strong>${euro(state.settings.flex+Math.max(0,available()))}</strong></div><button class="primary" data-action="roll">Carry unused amount forward</button></div>
+<div class="notice">Your normal commitments are already accounted for. The <b>${euro(state.settings.flex)}</b> is the flexible money you can actually spend and track.</div></div>`,
+spend:()=>`<div class="app"><header><h1>Spending</h1><button class="secondary" data-action="add">＋ Add</button></header>
+<div class="grid"><div class="stat"><div class="muted">Available</div><div class="num ${available()<0?'negative':'positive'}">${euro(available())}</div></div><div class="stat"><div class="muted">Spent</div><div class="num">${euro(spentThis())}</div></div></div>
+<div class="card"><h2>Transactions</h2>${expenseRows(true)}</div>
+<div class="card"><h2>Carry-forward</h2><p class="muted">If you finish the month below your allowance, the unused amount can be added to next month's flexible budget.</p><button class="primary" data-action="roll">Carry unused amount forward</button></div></div>`,
+budget:()=>`<div class="app"><header><h1>Budget</h1></header>
+<div class="card"><h2>Monthly commitments</h2><div class="row"><span>Recurring costs</span><strong>${euro(monthlyBudget())}</strong></div><div class="row"><span>Gifts sinking fund</span><strong>${euro(gifts())}</strong></div><div class="row"><span>Weekend food</span><strong>${euro(food())}</strong></div><div class="row"><span>General discretionary</span><strong>${euro(general())}</strong></div><div class="row"><span><b>Total planned</b></span><strong>${euro(planned())}</strong></div></div>
+<div class="card"><div class="section-title"><h2>Recurring expenses</h2><button class="secondary" data-action="editbudget">Edit</button></div>${state.budget.map((x,i)=>`<div class="row"><span>${x[1]}<div class="muted">${x[0]} · ${x[2]}${x[4]?" · Essential":" · Optional"}${x[5]?` · ${x[5]}`:""}</div></span><strong>${euro(x[2]==="Monthly"?x[3]:x[3]/12)}/mo</strong></div>`).join("")}</div>
+<div class="card"><h2>Planned gifts</h2><div class="row"><span>Girlfriend — birthday + Christmas</span><strong>€400/year</strong></div><div class="row"><span>Girlfriend — Valentine's + anniversary</span><strong>€200/year</strong></div><div class="row"><span>Parents — birthday + Christmas</span><strong>€200/year</strong></div><div class="row"><span>Sister / husband / 2 kids</span><strong>€400/year</strong></div></div>
+<div class="card"><h2>Gym benefit</h2><div class="row"><span>Original value</span><strong>€440/year</strong></div><div class="row"><span>Cloudigo benefit</span><strong>€60/year</strong></div><div class="row"><span>Work benefit</span><strong>€200/year</strong></div><div class="row"><span>Actual cost</span><strong>€180/year</strong></div><div class="row"><span>Total benefit</span><strong class="positive">€260/year</strong></div></div></div>`,
+plan:()=>`<div class="app"><header><h1>2-Year Plan</h1></header>
+<div class="card target"><h2>Target</h2><div style="font-size:38px;font-weight:800">${euro(state.settings.target)}</div><div class="muted">Your chosen two-year finish line</div></div>
+<div class="card"><h2>Big picture</h2><div class="row"><span>Starting savings</span><strong>${euro(state.settings.starting)}</strong></div><div class="row"><span>Two-year income</span><strong>${euro(state.settings.income*2)}</strong></div><div class="row"><span>Maximum if you spend €0</span><strong>${euro(state.settings.starting+state.settings.income*2)}</strong></div><div class="row"><span>Current projected finish</span><strong>${euro(projected())}</strong></div><div class="row"><span>Buffer above target</span><strong class="${targetRoom()<0?'negative':'positive'}">${euro(targetRoom())}</strong></div></div>
+<div class="card"><h2>Why the €288 allowance?</h2><p class="muted">Your planned commitments are separated from your flexible spending. The €288/month is the extra lifestyle money you can spend without losing sight of the €75k goal.</p><div class="row"><span>Monthly income</span><strong>${euro(monthlyIncome())}</strong></div><div class="row"><span>Planned commitments</span><strong>${euro(planned())}</strong></div><div class="row"><span>Flexible allowance</span><strong>${euro(state.settings.flex)}</strong></div><div class="row"><span>Projected monthly savings</span><strong>${euro(monthlyIncome()-planned()-state.settings.flex)}</strong></div></div>
+<div class="card"><h2>Settings</h2><button class="secondary" data-action="settings">Edit plan assumptions</button> <button class="secondary danger" data-action="reset">Reset to starting plan</button></div></div>`
+}}
+function expenseRows(all=false){const xs=state.expenses.filter(x=>x.month===monthKey()).sort((a,b)=>b.date-a.date);if(!xs.length)return `<div class="empty">No spending recorded yet.</div>`;return xs.map(x=>`<div class="expense"><span>${x.name}<div class="muted">${x.category} · ${new Date(x.date).toLocaleDateString("en-GB")}</div></span><span><b>${euro(x.amount)}</b> <button class="secondary" data-del="${x.id}">×</button></span></div>`).join("")}
+function modal(html){document.getElementById("modalBody").innerHTML=html;document.getElementById("modal").classList.add("show")}
+function closeModal(){document.getElementById("modal").classList.remove("show")}
+function bind(){
+ document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+ document.querySelectorAll("[data-action=add]").forEach(b=>b.onclick=()=>modal(`<h2>Add spending</h2><form class="form" id="expenseForm"><div><label>What did you spend on?</label><input id="ename" maxlength="60" placeholder="Coffee, clothes, dinner..." required></div><div><label>Amount (€)</label><input id="eamount" type="number" min=".01" step=".01" inputmode="decimal" required></div><div><label>Category</label><select id="ecat">${["General","Food","Entertainment","Clothes","Transport","Gifts","Holiday","Other"].map(x=>`<option>${x}</option>`).join("")}</select></div><button class="primary">Add expense</button></form>`));
+ document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{state.expenses=state.expenses.filter(x=>x.id!==b.dataset.del);save();render()});
+ document.querySelectorAll("[data-action=roll]").forEach(b=>b.onclick=()=>{state.carry=Math.max(0,available());save();alert(`€${state.carry.toFixed(2)} will carry into next month.`);render()});
+ document.querySelectorAll("[data-action=settings]").forEach(b=>b.onclick=()=>modal(`<h2>Plan assumptions</h2><form class="form" id="settingsForm"><div><label>Starting savings</label><input id="sstart" type="number" value="${state.settings.starting}"></div><div><label>Annual pay</label><input id="sincome" type="number" value="${state.settings.income}"></div><div><label>Two-year target</label><input id="starget" type="number" value="${state.settings.target}"></div><div><label>Flexible monthly allowance</label><input id="sflex" type="number" value="${state.settings.flex}"></div><button class="primary">Save assumptions</button></form>`));
+ document.querySelectorAll("[data-action=reset]").forEach(b=>b.onclick=()=>{if(confirm("Reset all spending and return to your original MoneyWise plan?")){state=structuredClone(seed);save();render()}});
+ const ef=document.getElementById("expenseForm");if(ef)ef.onsubmit=e=>{e.preventDefault();const amount=Number(document.getElementById("eamount").value);const name=document.getElementById("ename").value.trim();if(amount>0&&name){state.expenses.push({id:crypto.randomUUID(),date:Date.now(),month:monthKey(),name,category:document.getElementById("ecat").value,amount});save();closeModal();render()}};
+ const sf=document.getElementById("settingsForm");if(sf)sf.onsubmit=e=>{e.preventDefault();state.settings.starting=Number(sstart.value)||34000;state.settings.income=Number(sincome.value)||32000;state.settings.target=Number(starget.value)||75000;state.settings.flex=Number(sflex.value)||288;save();closeModal();render()};
+ document.getElementById("closeModal").onclick=closeModal;
+}
+if("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(()=>{});
+render();
+</script>
+</body></html>
