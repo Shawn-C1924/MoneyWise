@@ -16,6 +16,7 @@ MoneyWise helps users:
 - Adjust timeframe, starting savings, income, targets and monthly allowances.
 - Use the app on iPhone through Safari and Add to Home Screen.
 - Keep personal financial data stored locally on the user's device.
+- Choose between Light, Dark and the signature Iconic green theme.
 
 ## Privacy
 
@@ -41,6 +42,6 @@ On iPhone, open the hosted site in Safari and choose **Share → Add to Home Scr
 
 ## Assets
 
-The MoneyWise coin-stack and growth-arrow logo is included as the PWA/Home Screen icon.
+The MoneyWise coin-stack and growth-arrow logo is included as the PWA/Home Screen icon. The interface also includes a signature Iconic green theme and compact icon-based controls.
 
 Private financial screenshots and personal sample values are intentionally not included in the public project.
