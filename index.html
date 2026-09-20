@@ -86,6 +86,10 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 <style id="monthly-action-v015">
 .monthly-action-note{background:var(--soft);border:1px solid var(--line);border-radius:12px;padding:10px 12px;margin:8px 0 10px;font-size:13px;color:var(--muted)}
 </style>
+<style id="ui-polish-v016">
+.add-section-btn{width:100%;display:block;margin:10px 0 0!important}
+.spend-outflow{font-weight:800;color:var(--danger);white-space:nowrap}
+</style>
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -97,7 +101,7 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 </div>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 <script>
-const DATA_VERSION="0.15";
+const DATA_VERSION="0.16";
 const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
@@ -135,7 +139,7 @@ const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annual
 let state;
 try{
   const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
-  if(saved && ["0.11","0.12","0.13","0.14","0.15"].includes(String(saved.version))){
+  if(saved && ["0.11","0.12","0.13","0.14","0.15","0.16"].includes(String(saved.version))){
     state={...structuredClone(DEFAULT),...saved,version:DATA_VERSION};
   }else{
     state=structuredClone(DEFAULT);
@@ -192,8 +196,8 @@ function home(){
     <button class="secondary" onclick="stashUnused()">Stash / save</button>
     <button class="secondary" onclick="carryPortionAndStash()">Carry portion + stash rest</button>
   </div>
-  ${state.carryHistory.length?`<div class="subhead">Carried</div>${state.carryHistory.slice().reverse().map((x,i)=>{let idx=state.carryHistory.length-1-i;return `<div class="item"><div class="row"><span>${monthLabel(x.from)} → ${monthLabel(x.to)}</span><b>${euro(x.amount)}</b></div><div style="text-align:right"><button class="icon" onclick="editCarry(${idx})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteCarry(${idx})" aria-label="Delete">⌫</button></div></div>`}).join("")}`:""}
-  ${state.stashHistory.length?`<div class="subhead">Stashed / saved → projected pool</div>${state.stashHistory.slice().reverse().map((x,i)=>{let idx=state.stashHistory.length-1-i;return `<div class="item"><div class="row"><span>${monthLabel(x.month)}</span><b>${euro(x.amount)}</b></div><div style="text-align:right"><button class="icon" onclick="editStash(${idx})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteStash(${idx})" aria-label="Delete">⌫</button></div></div>`}).join("")}`:""}
+  ${state.carryHistory.length?`<div class="subhead">Carried</div>${state.carryHistory.slice().reverse().map((x,i)=>{let idx=state.carryHistory.length-1-i;return `<div class="item"><div class="row"><span>${monthLabel(x.from)} → ${monthLabel(x.to)}</span><b>${euro(x.amount)}</b></div><div style="text-align:right"><button class="icon" onclick="editCarry(${idx})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteCarry(${idx})" aria-label="Delete">🗑</button></div></div>`}).join("")}`:""}
+  ${state.stashHistory.length?`<div class="subhead">Stashed / saved → projected pool</div>${state.stashHistory.slice().reverse().map((x,i)=>{let idx=state.stashHistory.length-1-i;return `<div class="item"><div class="row"><span>${monthLabel(x.month)}</span><b>${euro(x.amount)}</b></div><div style="text-align:right"><button class="icon" onclick="editStash(${idx})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteStash(${idx})" aria-label="Delete">🗑</button></div></div>`}).join("")}`:""}
   ${!state.carryHistory.length&&!state.stashHistory.length?'<div class="empty">No carry or stash records yet.</div>':''}
  </div>`;
 }
@@ -201,7 +205,7 @@ function spend(){
  return `<div class="top"><h1>Spending</h1><div class="muted">Monthly breakdown</div></div>
  <div class="card hero"><div class="muted">Available this month</div><div class="big">${euro(available()-spent())}</div><div class="row small"><span>Base ${euro(state.flexible)}</span><span>Carried ${euro(state.carry)}</span><span>Spent ${euro(spent())}</span></div></div>
  <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(giftMonthly())}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button><button onclick="openAdd()">＋ Add spending</button></div>
- <div class="card">${months().map(k=>{let open=state.openMonths[k],total=spent(k),limit=state.flexible+(k===monthKey()?state.carry:0),diff=limit-total,cls=diff>=0?"under":"over",label=diff>=0?"Under limit":"Over limit";return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')"><div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span><span><b>${euro(total)}</b> ${open?"▲":"▼"}</span></div><div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><div style="text-align:right"><button class="icon delete" onclick="delTx('${x.id}')">⌫</button></div></div>`).join(""):'<div class="empty">No spending recorded.</div>'}</div>`:""}`}).join("")}</div>`;
+ <div class="card">${months().map(k=>{let open=state.openMonths[k],total=spent(k),limit=state.flexible+(k===monthKey()?state.carry:0),diff=limit-total,cls=diff>=0?"under":"over",label=diff>=0?"Under limit":"Over limit";return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')"><div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span><span><b>${euro(total)}</b> ${open?"▲":"▼"}</span></div><div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span class="spend-outflow">↓ ${euro(x.amount)}</span></div><div style="text-align:right"><button class="icon delete" onclick="delTx('${x.id}')">🗑</button></div></div>`).join(""):'<div class="empty">No spending recorded.</div>'}</div>`:""}`}).join("")}</div>`;
 }
 function budget(){
  const sections=[
@@ -229,23 +233,24 @@ function budget(){
    </button>
    ${state.budgetOpen?.[s.key]?`<div class="section-body">${s.content}</div>`:''}
  </div>`).join("")}
- <button onclick="addCustomSection()">＋ Add section</button>`;
+ <button class="add-section-btn" onclick="addCustomSection()">＋ Add section</button>`;
 }
 function budgetRecurring(){
- return `${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span>${esc(x.name)}</span><span>${euro(x.frequency==="yearly"?Number(x.amount)/12:Number(x.amount))}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button>`;
+ return `${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span>${esc(x.name)}</span><span>${euro(x.frequency==="yearly"?Number(x.amount)/12:Number(x.amount))}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">🗑</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button>`;
 }
 function budgetGifts(){
- return `${Array.isArray(state.gifts)&&state.gifts.length?state.gifts.map((g,i)=>`<div class="item"><div class="row"><span>${esc(g.person)}<br><span class="muted">${esc(g.occasion)}</span></span><span style="display:flex;align-items:center;gap:6px"><span>${euro(g.amount)}</span><button class="icon" onclick="editGift(${i})" aria-label="Edit gift">✎</button><button class="icon delete" onclick="removeGiftDirect(${i})" aria-label="Delete gift">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your gift occasions.</div>'}<button onclick="addGiftDirect()">＋ Add gift</button><button class="secondary" onclick="editGifts()">✎ Edit all gifts</button>`;
+ return `${Array.isArray(state.gifts)&&state.gifts.length?state.gifts.map((g,i)=>`<div class="item"><div class="row"><span>${esc(g.person)}<br><span class="muted">${esc(g.occasion)}</span></span><span style="display:flex;align-items:center;gap:6px"><span>${euro(g.amount)}</span><button class="icon" onclick="editGift(${i})" aria-label="Edit gift">✎</button><button class="icon delete" onclick="removeGiftDirect(${i})" aria-label="Delete gift">🗑</button></span></div></div>`).join(""):'<div class="empty">Add your gift occasions.</div>'}<button onclick="addGiftDirect()">＋ Add gift</button><button class="secondary" onclick="editGifts()">✎ Edit all gifts</button>`;
 }
 function budgetOther(){
  return `<div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editOther()">✎ Edit</button>`;
 }
 function budgetCustom(i){
  const s=state.customSections[i];
- return `${(s.items||[]).length?s.items.map((x,j)=>`<div class="item"><div class="row"><span>${esc(x.name)}</span><span>${euro(x.amount)}/mo <button class="icon" onclick="editCustomItem(${i},${j})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteCustomItem(${i},${j})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">No items yet.</div>'}
- <button onclick="addCustomItem(${i})">＋ Add item</button><button class="secondary" onclick="editCustomSection(${i})">✎ Rename</button><button class="icon delete" onclick="deleteCustomSection(${i})" aria-label="Delete section">⌫</button>`;
+ return `${(s.items||[]).length?s.items.map((x,j)=>`<div class="item"><div class="row"><span>${esc(x.name)}</span><span>${euro(customItemMonthly(x))}/mo <span class="muted">(${x.frequency==="yearly"?"yearly":"monthly"})</span> <button class="icon" onclick="editCustomItem(${i},${j})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteCustomItem(${i},${j})" aria-label="Delete">🗑</button></span></div></div>`).join(""):'<div class="empty">No items yet.</div>'}
+ <button onclick="addCustomItem(${i})">＋ Add item</button><button class="secondary" onclick="editCustomSection(${i})">✎ Rename</button><button class="icon delete" onclick="deleteCustomSection(${i})" aria-label="Delete section">🗑</button>`;
 }
-function customSectionMonthly(s){return (s.items||[]).reduce((a,x)=>a+(Number(x.amount)||0),0)}
+function customItemMonthly(x){return x.frequency==="yearly"?(Number(x.amount)||0)/12:(Number(x.amount)||0)}
+function customSectionMonthly(s){return (s.items||[]).reduce((a,x)=>a+customItemMonthly(x),0)}
 function customSectionsMonthly(){return (state.customSections||[]).reduce((a,s)=>a+customSectionMonthly(s),0)}
 function plan(){
  let m=monthsInPlan(),p=projected(),ess=essentialsOutcome();
@@ -381,14 +386,14 @@ function deleteCustomSection(i){
 }
 function addCustomItem(i){editCustomItem(i,-1)}
 function editCustomItem(i,j){
-  const x=j>=0?state.customSections[i].items[j]:{name:"",amount:0};
-  document.getElementById("sheet").innerHTML=`<h2>${j>=0?"Edit":"Add"} item</h2>${field("Name","cin",x.name,"","text")}${field("Monthly amount (€)","cia",x.amount,".01")}<button onclick="saveCustomItem(${i},${j})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  const x=j>=0?state.customSections[i].items[j]:{name:"",amount:0,frequency:"monthly"};
+  document.getElementById("sheet").innerHTML=`<h2>${j>=0?"Edit":"Add"} item</h2>${field("Name","cin",x.name,"","text")}${field("Amount (€)","cia",x.amount,".01")}<label>Frequency</label><select id="cif"><option value="monthly" ${x.frequency!=="yearly"?"selected":""}>Monthly</option><option value="yearly" ${x.frequency==="yearly"?"selected":""}>Yearly</option></select><button onclick="saveCustomItem(${i},${j})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
 function saveCustomItem(i,j){
-  const n=document.getElementById("cin").value.trim(),a=Math.max(0,parseFloat(document.getElementById("cia").value)||0);
+  const n=document.getElementById("cin").value.trim(),a=Math.max(0,parseFloat(document.getElementById("cia").value)||0),frequency=document.getElementById("cif").value;
   if(!n)return;
-  const item={name:n,amount:a};
+  const item={name:n,amount:a,frequency};
   if(j>=0)state.customSections[i].items[j]=item;else state.customSections[i].items.push(item);
   save();closeModal();render("budget");
 }
@@ -435,7 +440,7 @@ function giftEditorRow(g,i){
     </div>
     <div class="row" style="margin-top:8px">
       <label style="margin:0">Amount (€)</label>
-      <span style="display:flex;gap:8px;align-items:center"><input id="gm-${i}" type="number" min="0" step=".01" value="${Number(g.amount)||0}" style="max-width:120px"><button class="icon delete" onclick="removeGift(${i})" aria-label="Delete gift">⌫</button></span>
+      <span style="display:flex;gap:8px;align-items:center"><input id="gm-${i}" type="number" min="0" step=".01" value="${Number(g.amount)||0}" style="max-width:120px"><button class="icon delete" onclick="removeGift(${i})" aria-label="Delete gift">🗑</button></span>
     </div>
   </div>`
 }
