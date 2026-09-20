@@ -1,5 +1,5 @@
 
-const DATA_VERSION="0.14";
+const DATA_VERSION="0.15";
 const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
@@ -33,11 +33,11 @@ const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annual
   {person:"Child 1",occasion:"Christmas",amount:50},
   {person:"Child 2",occasion:"Birthday",amount:50},
   {person:"Child 2",occasion:"Christmas",amount:50}
-],weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],stashHistory:[],dark:false,theme:"iconic",openMonths:{},customSections:[]};
+],weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],stashHistory:[],monthlyActions:{},dark:false,theme:"iconic",openMonths:{},customSections:[]};
 let state;
 try{
   const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
-  if(saved && ["0.11","0.12","0.13","0.14"].includes(String(saved.version))){
+  if(saved && ["0.11","0.12","0.13","0.14","0.15"].includes(String(saved.version))){
     state={...structuredClone(DEFAULT),...saved,version:DATA_VERSION};
   }else{
     state=structuredClone(DEFAULT);
@@ -46,7 +46,7 @@ try{
   state=structuredClone(DEFAULT);
 }
 Object.keys(DEFAULT).forEach(k=>{if(state[k]===undefined)state[k]=structuredClone(DEFAULT[k])});if(!state.budgetOpen)state.budgetOpen={recurring:false,gifts:false,other:false};if(!state.customSections)state.customSections=[];
-if(!state.stashHistory)state.stashHistory=[];if(!state.theme)state.theme=state.dark?"dark":"iconic";
+if(!state.stashHistory)state.stashHistory=[];if(!state.monthlyActions)state.monthlyActions={};if(!state.theme)state.theme=state.dark?"dark":"iconic";
 function save(){localStorage.setItem("moneywise",JSON.stringify(state))}
 function euro(n){return new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:2}).format(n)}
 function monthKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
@@ -88,6 +88,7 @@ function home(){
  <div class="card">
   <div class="row"><b>Unused allowance</b></div>
   <div class="muted" style="margin-bottom:10px">Choose what to do with money left at the end of the month.</div>
+  ${state.monthlyActions?.[monthKey()]?`<div class="monthly-action-note">This month has been logged: <b>${esc(state.monthlyActions[monthKey()].label)}</b></div>`:""}
   <div class="carry-actions">
     <button class="secondary" onclick="carry()">Carry unused</button>
     <button class="secondary" onclick="stashUnused()">Stash / save</button>
@@ -165,21 +166,43 @@ function finishSetup(){state.years=Math.max(.5,parseFloat(document.getElementByI
 function openAdd(){document.getElementById("sheet").innerHTML=`<h2>Add spending</h2><label>Description</label><input id="desc" placeholder="e.g. Dinner"><label>Amount (€)</label><input id="amount" type="number" step=".01"><label>Category</label><select id="cat"><option>General</option><option>Food</option><option>Entertainment</option><option>Clothes</option><option>Transport</option><option>Gifts</option><option>Holiday</option><option>Other</option></select><button onclick="addTx()">Add</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function addTx(){let desc=document.getElementById("desc").value.trim()||"Spending",amount=parseFloat(document.getElementById("amount").value);if(!amount||amount<=0)return alert("Enter a valid amount.");state.transactions.push({id:Date.now().toString(),month:monthKey(),desc,amount,cat:document.getElementById("cat").value});save();closeModal();render("spend")}
 function delTx(id){state.transactions=state.transactions.filter(x=>x.id!==id);save();render("spend")}
-function carry(){let r=Math.max(0,remaining());if(!r)return alert("There is no unused allowance to carry.");let from=monthKey(),d=new Date();d.setMonth(d.getMonth()+1);let to=monthKey(d);state.carryHistory.push({from,to,amount:r});state.carry=r;save();render("home")}
+function monthlyActionLogged(kind,month=monthKey()){
+  return state.monthlyActions?.[month]?.kind===kind;
+}
+function confirmMonthlyAction(kind,label){
+  const month=monthKey(),existing=state.monthlyActions?.[month];
+  if(existing){
+    return confirm(`${monthLabel(month)} has already been logged as "${existing.label}". Are you sure you want to do this again? This will add another ${label.toLowerCase()} record.`);
+  }
+  return true;
+}
+function logMonthlyAction(kind,label){
+  state.monthlyActions=state.monthlyActions||{};
+  state.monthlyActions[monthKey()]={kind,label};
+}
+function carry(){
+  let r=Math.max(0,remaining());
+  if(!r)return alert("There is no unused allowance to carry.");
+  if(!confirmMonthlyAction("carry","Carry unused"))return;
+  let from=monthKey(),d=new Date();d.setMonth(d.getMonth()+1);let to=monthKey(d);
+  state.carryHistory.push({from,to,amount:r});state.carry=r;logMonthlyAction("carry","Carry unused");save();render("home")
+}
 function editCarry(i){let x=state.carryHistory[i];document.getElementById("sheet").innerHTML=`<h2>Edit carried allowance</h2><div class="muted">${monthLabel(x.from)} → ${monthLabel(x.to)}</div><label>Amount (€)</label><input id="ca" type="number" step=".01" value="${x.amount}"><button onclick="saveCarry(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveCarry(i){let a=parseFloat(document.getElementById("ca").value);if(isNaN(a)||a<0)return alert("Enter a valid amount.");state.carryHistory[i].amount=a;state.carry=a;save();closeModal();render("home")}
 function deleteCarry(i){if(confirm("Delete this carried allowance?")){state.carryHistory.splice(i,1);state.carry=state.carryHistory.length?state.carryHistory[state.carryHistory.length-1].amount:0;save();render("home")}}
 function stashUnused(){
   let r=Math.max(0,remaining());
   if(!r)return alert("There is no unused allowance to stash.");
+  if(!confirmMonthlyAction("stash","Stash / save"))return;
   let month=monthKey();
   state.stashHistory.push({month,amount:r});
   state.carry=0;
-  save();render("home");
+  logMonthlyAction("stash","Stash / save");save();render("home");
 }
 function carryPortionAndStash(){
   let r=Math.max(0,remaining());
   if(!r)return alert("There is no unused allowance to split.");
+  if(!confirmMonthlyAction("split","Carry portion + stash rest"))return;
   document.getElementById("sheet").innerHTML=`<h2>Carry portion + stash rest</h2><div class="muted">Unused allowance: ${euro(r)}. Enter how much you want to carry into next month. The rest will be stashed into the projected pool.</div>${field("Amount to carry (€)","cpa",r,".01")}<button onclick="saveCarryPortion()">Save split</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
@@ -192,6 +215,7 @@ function saveCarryPortion(){
     state.carry=carryAmount;
   }else state.carry=0;
   if(stashAmount>0)state.stashHistory.push({month:from,amount:stashAmount});
+  logMonthlyAction("split","Carry portion + stash rest");
   save();closeModal();render("home");
 }
 function editStash(i){
