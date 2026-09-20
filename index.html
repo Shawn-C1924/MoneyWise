@@ -78,7 +78,24 @@ const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annual
       {name:"Gym",amount:180,frequency:"yearly"},
       {name:"Car insurance",amount:400,frequency:"yearly"},
       {name:"Car license",amount:300,frequency:"yearly"}
-    ],gifts:100,weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],dark:false,theme:"iconic",openMonths:{}};
+    ],gifts:[
+  {person:"Girlfriend",occasion:"Birthday",amount:200},
+  {person:"Girlfriend",occasion:"Christmas",amount:200},
+  {person:"Girlfriend",occasion:"Valentines",amount:100},
+  {person:"Girlfriend",occasion:"Anniversary",amount:100},
+  {person:"Mum",occasion:"Birthday",amount:100},
+  {person:"Mum",occasion:"Christmas",amount:100},
+  {person:"Dad",occasion:"Birthday",amount:100},
+  {person:"Dad",occasion:"Christmas",amount:100},
+  {person:"Sister",occasion:"Birthday",amount:50},
+  {person:"Sister",occasion:"Christmas",amount:50},
+  {person:"Sister's husband",occasion:"Birthday",amount:50},
+  {person:"Sister's husband",occasion:"Christmas",amount:50},
+  {person:"Child 1",occasion:"Birthday",amount:50},
+  {person:"Child 1",occasion:"Christmas",amount:50},
+  {person:"Child 2",occasion:"Birthday",amount:50},
+  {person:"Child 2",occasion:"Christmas",amount:50}
+],weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],dark:false,theme:"iconic",openMonths:{}};
 let state;
 try{
   const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
@@ -92,13 +109,19 @@ function save(){localStorage.setItem("moneywise",JSON.stringify(state))}
 function euro(n){return new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:2}).format(n)}
 function monthKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function monthLabel(k){let [y,m]=k.split("-");return new Date(+y,+m-1,1).toLocaleString(undefined,{month:"long",year:"numeric"})}
+function giftMonthly(){
+  if(Array.isArray(state.gifts)){
+    return giftMonthly().reduce((sum,g)=>sum+(Number(g.amount)||0),0)/12;
+  }
+  return Number(state.gifts)||0;
+}
 function recurring(){
   return state.recurring.reduce((a,x)=>{
     const amount=Number(x.amount)||0;
     return a+(x.frequency==="yearly"?amount/12:amount);
   },0);
 }
-function planned(){return recurring()+state.gifts+state.weekendFood+state.general}
+function planned(){return recurring()+giftMonthly()+state.weekendFood+state.general}
 function months(){let keys=[...new Set(state.transactions.map(x=>x.month))],now=monthKey();if(!keys.includes(now))keys.push(now);return keys.sort().reverse()}
 function txs(k=monthKey()){return state.transactions.filter(x=>x.month===k)}
 function spent(k=monthKey()){return txs(k).reduce((a,x)=>a+x.amount,0)}
@@ -124,13 +147,13 @@ function home(){
 function spend(){
  return `<div class="top"><h1>Spending</h1><div class="muted">Monthly breakdown</div></div>
  <div class="card hero"><div class="muted">Available this month</div><div class="big">${euro(available()-spent())}</div><div class="row small"><span>Base ${euro(state.flexible)}</span><span>Carried ${euro(state.carry)}</span><span>Spent ${euro(spent())}</span></div></div>
- <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(state.gifts)}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button></div>
+ <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(giftMonthly())}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button></div>
  <div class="card">${months().map(k=>{let open=state.openMonths[k],total=spent(k),limit=state.flexible+(k===monthKey()?state.carry:0),diff=limit-total,cls=diff>=0?"under":"over",label=diff>=0?"Under limit":"Over limit";return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')"><div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span><span><b>${euro(total)}</b> ${open?"▲":"▼"}</span></div><div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><div style="text-align:right"><button class="icon delete" onclick="delTx('${x.id}')">⌫</button></div></div>`).join(""):'<div class="empty">No spending recorded.</div>'}</div>`:""}`}).join("")}</div>`;
 }
 function budget(){
  return `<div class="top"><h1>Budget</h1><div class="muted">Essentials & planned costs</div></div>
  <div class="card"><div class="row"><b>Recurring expenses</b><b>${euro(recurring())}/mo</b></div>${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">€</span><span>${esc(x.name)}</span></span><span>${euro(x.frequency==="yearly"?Number(x.amount)/12:Number(x.amount))}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button></div>
- <div class="card"><div class="row"><b>Gifts & occasions</b><button class="secondary" onclick="editGifts()">✎ Edit</button></div><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">🎁</span><span>Gift budget</span></span><b>${euro(state.gifts)}/mo</b></div></div>
+ <div class="card"><div class="row"><b>Gifts & occasions</b><button class="secondary" onclick="editGifts()">✎ Edit</button></div><div class="row"><span class="row" style="justify-content:flex-start"><span class="iconbox">🎁</span><span>Gift budget</span></span><b>${euro(giftMonthly())}/mo</b></div></div>
  <div class="card"><div class="row"><b>Other Essentials</b><b>${euro(state.weekendFood+state.general)}/mo</b></div><div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editOther()">✎ Edit</button></div>
  <div class="card"><div class="row"><b>Total Essentials</b><b>${euro(planned())}/mo</b></div></div>`;
 }
@@ -162,8 +185,8 @@ function addRecurring(){editRecurring(-1)}
 function editRecurring(i){let x=i>=0?state.recurring[i]:["",0];document.getElementById("sheet").innerHTML=`<h2>${i>=0?"Edit":"Add"} recurring expense</h2>${field("Name","rn",x[0])}${field("Monthly amount (€)","ra",x[1],".01")}<button onclick="saveRecurring(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveRecurring(i){let n=document.getElementById("rn").value.trim(),a=parseFloat(document.getElementById("ra").value)||0;if(!n)return;if(i>=0)state.recurring[i]=[n,a];else state.recurring.push([n,a]);save();closeModal();render("budget")}
 function deleteRecurring(i){if(confirm("Delete this recurring expense?")){state.recurring.splice(i,1);save();render("budget")}}
-function editGifts(){document.getElementById("sheet").innerHTML=`<h2>Gift budget</h2>${field("Monthly gifts (€)","ga",state.gifts,".01")}<button onclick="saveGifts()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
-function saveGifts(){state.gifts=Math.max(0,parseFloat(document.getElementById("ga").value)||0);save();closeModal();render("budget")}
+function editGifts(){document.getElementById("sheet").innerHTML=`<h2>Gift budget</h2>${field("Monthly gifts (€)","ga",giftMonthly(),".01")}<button onclick="saveGifts()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function saveGifts(){giftMonthly()=Math.max(0,parseFloat(document.getElementById("ga").value)||0);save();closeModal();render("budget")}
 function editOther(){document.getElementById("sheet").innerHTML=`<h2>Other Essentials</h2>${field("Weekend food (€ / month)","wf",state.weekendFood,".01")}${field("General (€ / month)","ge",state.general,".01")}<button onclick="saveOther()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveOther(){state.weekendFood=Math.max(0,parseFloat(document.getElementById("wf").value)||0);state.general=Math.max(0,parseFloat(document.getElementById("ge").value)||0);save();closeModal();render("budget")}
 function settings(){document.getElementById("sheet").innerHTML=`<h2>Edit plan</h2><p class="muted">These values are stored locally on this device.</p>${field("Timeframe (years)","py",state.years,".5")}${field("Starting savings (€)","ps",state.startingSavings,".01")}${field("Annual income (€)","pi",state.annualPay,".01")}${field("Target savings (€)","pt",state.target,".01")}${field("Additional monthly allowance (€)","pf",state.flexible,".01")}<button onclick="saveSettings()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
