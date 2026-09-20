@@ -21,7 +21,7 @@ h1{font-size:28px;letter-spacing:-.7px;margin:0}.muted{color:var(--muted);font-s
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 14px}.metric{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:14px}.metric b{display:block;font-size:19px;margin-top:4px}
 .progress{height:9px;background:var(--line);border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--accent);border-radius:99px}
 button{border:0;border-radius:13px;padding:11px 14px;font-weight:700;background:var(--accent2);color:white;font-size:15px;margin:3px 3px 3px 0}button.secondary{background:var(--soft);color:var(--text);border:1px solid var(--line)}button.danger{background:var(--dangerbg);color:var(--danger)}button.icon{background:transparent;border:0;color:var(--muted);padding:7px 8px;font-size:17px;margin:0}button.icon.delete{color:var(--danger)}
-.nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;justify-content:center;gap:4px;z-index:5;padding-bottom:env(safe-area-inset-bottom)}.nav button{background:transparent;color:var(--muted);border-radius:0;padding:10px 8px 11px;flex:0 1 105px;max-width:105px;font-size:11px;margin:0;text-align:center}.nav button.active{color:var(--accent);font-weight:800}.nav span{display:block;font-size:20px;line-height:20px;margin-bottom:3px}
+.nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;justify-content:center;align-items:center;gap:8px;z-index:5;padding:7px 12px calc(7px + env(safe-area-inset-bottom))}.nav button{background:transparent;color:var(--muted);border-radius:13px;padding:8px 10px;flex:0 1 96px;max-width:96px;height:42px;font-size:12px;font-weight:700;margin:0;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap}.nav button.active{color:var(--accent);font-weight:800;background:color-mix(in srgb,var(--accent) 10%,transparent)}.nav span{display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1;margin:0}.nav .graph-icon svg{display:block}
 .item{padding:11px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.small{font-size:13px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--soft);font-size:12px}.iconbox{width:34px;height:34px;border-radius:11px;background:var(--soft);display:grid;place-items:center;flex:none}.month-head{cursor:pointer;padding:13px 12px;margin:0 -3px;border-radius:16px}.month-head.under{background:color-mix(in srgb,#22c55e 13%,var(--card))}.month-head.over{background:color-mix(in srgb,#ef4444 13%,var(--card))}.status{font-size:12px;font-weight:800}.under .status{color:#23a85f}.over .status{color:var(--danger)}
 input,select{width:100%;padding:12px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;font-size:16px;margin:5px 0 10px}.modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:var(--card);color:var(--text);width:100%;border-radius:24px 24px 0 0;padding:20px 18px 30px;max-height:92vh;overflow:auto}
 .toggle{display:flex;justify-content:space-between;align-items:center}.switch{width:50px;height:30px;border-radius:20px;background:#87958f;padding:3px;cursor:pointer}.switch i{display:block;width:24px;height:24px;border-radius:50%;background:white;transition:.2s}.switch.on{background:var(--accent)}.switch.on i{transform:translateX(20px)}
@@ -73,6 +73,11 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 .budget-rundown .row{margin:7px 0}
 .budget-rundown-total{border-top:1px solid var(--line);padding-top:8px;margin-top:8px!important}
 </style>
+<style id="input-nav-fix-v013">
+.sheet input[type="text"]{box-sizing:border-box}
+.sheet>button{margin-top:8px}
+.nav-icon{flex:0 0 auto}
+</style>
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -84,7 +89,7 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 </div>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 <script>
-const DATA_VERSION="0.12";
+const DATA_VERSION="0.13";
 const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
@@ -122,7 +127,11 @@ const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annual
 let state;
 try{
   const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
-  state=(saved&&saved.version===DATA_VERSION)?saved:structuredClone(DEFAULT);
+  if(saved && ["0.11","0.12","0.13"].includes(String(saved.version))){
+    state={...structuredClone(DEFAULT),...saved,version:DATA_VERSION};
+  }else{
+    state=structuredClone(DEFAULT);
+  }
 }catch(e){
   state=structuredClone(DEFAULT);
 }
@@ -170,7 +179,7 @@ function home(){
 function spend(){
  return `<div class="top"><h1>Spending</h1><div class="muted">Monthly breakdown</div></div>
  <div class="card hero"><div class="muted">Available this month</div><div class="big">${euro(available()-spent())}</div><div class="row small"><span>Base ${euro(state.flexible)}</span><span>Carried ${euro(state.carry)}</span><span>Spent ${euro(spent())}</span></div></div>
- <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(giftMonthly())}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button></div>
+ <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(giftMonthly())}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button><button onclick="openAdd()">＋ Add spending</button></div>
  <div class="card">${months().map(k=>{let open=state.openMonths[k],total=spent(k),limit=state.flexible+(k===monthKey()?state.carry:0),diff=limit-total,cls=diff>=0?"under":"over",label=diff>=0?"Under limit":"Over limit";return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')"><div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span><span><b>${euro(total)}</b> ${open?"▲":"▼"}</span></div><div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><div style="text-align:right"><button class="icon delete" onclick="delTx('${x.id}')">⌫</button></div></div>`).join(""):'<div class="empty">No spending recorded.</div>'}</div>`:""}`}).join("")}</div>`;
 }
 function budget(){
@@ -245,7 +254,7 @@ function addRecurring(){editRecurring(-1)}
 function editRecurring(i){
   let x=i>=0?state.recurring[i]:{name:"",amount:0,frequency:"monthly"};
   document.getElementById("sheet").innerHTML=`<h2>${i>=0?"Edit":"Add"} recurring expense</h2>
-  ${field("Name","rn",x.name)}
+  ${field("Name","rn",x.name,"","text")}
   ${field("Amount (€)","ra",x.amount,".01")}
   <label>Frequency</label><select id="rf"><option value="monthly" ${x.frequency==="monthly"?"selected":""}>Monthly</option><option value="yearly" ${x.frequency==="yearly"?"selected":""}>Yearly</option></select>
   <button onclick="saveRecurring(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
@@ -273,7 +282,7 @@ function addCustomSection(){
 }
 function editCustomSection(i){
   const s=state.customSections[i];
-  document.getElementById("sheet").innerHTML=`<h2>Edit section</h2>${field("Section name","csn",s.name)}<button onclick="saveCustomSection(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  document.getElementById("sheet").innerHTML=`<h2>Edit section</h2>${field("Section name","csn",s.name,"","text")}<button onclick="saveCustomSection(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
 function saveCustomSection(i){
@@ -289,7 +298,7 @@ function deleteCustomSection(i){
 function addCustomItem(i){editCustomItem(i,-1)}
 function editCustomItem(i,j){
   const x=j>=0?state.customSections[i].items[j]:{name:"",amount:0};
-  document.getElementById("sheet").innerHTML=`<h2>${j>=0?"Edit":"Add"} item</h2>${field("Name","cin",x.name)}${field("Monthly amount (€)","cia",x.amount,".01")}<button onclick="saveCustomItem(${i},${j})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  document.getElementById("sheet").innerHTML=`<h2>${j>=0?"Edit":"Add"} item</h2>${field("Name","cin",x.name,"","text")}${field("Monthly amount (€)","cia",x.amount,".01")}<button onclick="saveCustomItem(${i},${j})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
 function saveCustomItem(i,j){
@@ -304,7 +313,7 @@ function deleteCustomItem(i,j){
 }
 function editGift(i){
   const g=state.gifts[i];
-  document.getElementById("sheet").innerHTML=`<h2>Edit gift</h2>${field("Person","sgp",g.person)}${field("Occasion","sgo",g.occasion)}${field("Amount (€)","sgm",g.amount,".01")}<button onclick="saveGift(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  document.getElementById("sheet").innerHTML=`<h2>Edit gift</h2>${field("Person","sgp",g.person,"","text")}${field("Occasion","sgo",g.occasion,"","text")}${field("Amount (€)","sgm",g.amount,".01")}<button onclick="saveGift(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
 function saveGift(i){
@@ -366,11 +375,11 @@ function saveGifts(){
   state.gifts=rows;
   save();closeModal();render("budget")
 }
-function editOther(){document.getElementById("sheet").innerHTML=`<h2>Other Essentials</h2>${field("Weekend food (€ / month)","wf",state.weekendFood,".01")}${field("General (€ / month)","ge",state.general,".01")}<button onclick="saveOther()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function editOther(){document.getElementById("sheet").innerHTML=`<h2>Monthly Spending Budget / Fun Money</h2>${field("Weekend food (€ / month)","wf",state.weekendFood,".01")}${field("General (€ / month)","ge",state.general,".01")}<button onclick="saveOther()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveOther(){state.weekendFood=Math.max(0,parseFloat(document.getElementById("wf").value)||0);state.general=Math.max(0,parseFloat(document.getElementById("ge").value)||0);save();closeModal();render("budget")}
 function settings(){document.getElementById("sheet").innerHTML=`<h2>Edit plan</h2><p class="muted">These values are stored locally on this device.</p>${field("Timeframe (years)","py",state.years,".5")}${field("Starting savings (€)","ps",state.startingSavings,".01")}${field("Annual income (€)","pi",state.annualPay,".01")}${field("Target savings (€)","pt",state.target,".01")}${field("Additional monthly allowance (€)","pf",state.flexible,".01")}<button onclick="saveSettings()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveSettings(){state.years=Math.max(.5,parseFloat(document.getElementById("py").value)||2);state.startingSavings=Math.max(0,parseFloat(document.getElementById("ps").value)||0);state.annualPay=Math.max(0,parseFloat(document.getElementById("pi").value)||0);state.target=Math.max(0,parseFloat(document.getElementById("pt").value)||0);state.flexible=Math.max(0,parseFloat(document.getElementById("pf").value)||0);save();closeModal();render("plan")}
-function field(label,id,val,step=".01"){return `<label>${label}</label><input id="${id}" type="number" min="0" step="${step}" value="${val===undefined?"":val}">`}
+function field(label,id,val,step=".01",type="number"){return `<label>${label}</label><input id="${id}" type="${type}" ${type==="number"?"min=\"0\" step=\""+step+"\"":""} value="${val===undefined?"":esc(val)}">`}
 function setTheme(t){state.theme=t;state.dark=t==="dark";save();render("plan")}
 function toggleEssentials(){state.showEssentialsOutcome=!state.showEssentialsOutcome;save();render("plan")}
 function closeModal(){document.getElementById("modal").classList.remove("open")}

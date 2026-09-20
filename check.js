@@ -1,5 +1,5 @@
 
-const DATA_VERSION="0.11";
+const DATA_VERSION="0.13";
 const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
@@ -37,7 +37,11 @@ const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annual
 let state;
 try{
   const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
-  state=(saved&&saved.version===DATA_VERSION)?saved:structuredClone(DEFAULT);
+  if(saved && ["0.11","0.12","0.13"].includes(String(saved.version))){
+    state={...structuredClone(DEFAULT),...saved,version:DATA_VERSION};
+  }else{
+    state=structuredClone(DEFAULT);
+  }
 }catch(e){
   state=structuredClone(DEFAULT);
 }
@@ -85,18 +89,28 @@ function home(){
 function spend(){
  return `<div class="top"><h1>Spending</h1><div class="muted">Monthly breakdown</div></div>
  <div class="card hero"><div class="muted">Available this month</div><div class="big">${euro(available()-spent())}</div><div class="row small"><span>Base ${euro(state.flexible)}</span><span>Carried ${euro(state.carry)}</span><span>Spent ${euro(spent())}</span></div></div>
- <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(giftMonthly())}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button></div>
+ <div class="card"><div class="row"><b>Planned Essentials</b><b>${euro(planned())}</b></div><div class="row small"><span>Recurring subscriptions & fixed costs</span><span>${euro(recurring())}</span></div><div class="row small"><span>Gifts</span><span>${euro(giftMonthly())}</span></div><div class="row small"><span>Food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editPlanned()">Edit additional allowance</button><button onclick="openAdd()">＋ Add spending</button></div>
  <div class="card">${months().map(k=>{let open=state.openMonths[k],total=spent(k),limit=state.flexible+(k===monthKey()?state.carry:0),diff=limit-total,cls=diff>=0?"under":"over",label=diff>=0?"Under limit":"Over limit";return `<div class="month-head ${cls}" onclick="toggleMonth('${k}')"><div class="row"><span><b>${monthLabel(k)}</b> <span class="status">${label}</span></span><span><b>${euro(total)}</b> ${open?"▲":"▼"}</span></div><div class="row small"><span>Available ${euro(limit)}</span><span>${diff>=0?euro(diff)+" left":euro(Math.abs(diff))+" over"}</span></div></div>${open?`<div>${txs(k).length?txs(k).map(x=>`<div class="item"><div class="row"><span>${esc(x.desc)} <span class="pill">${esc(x.cat)}</span></span><span>${euro(x.amount)}</span></div><div style="text-align:right"><button class="icon delete" onclick="delTx('${x.id}')">⌫</button></div></div>`).join(""):'<div class="empty">No spending recorded.</div>'}</div>`:""}`}).join("")}</div>`;
 }
 function budget(){
  const sections=[
-  {key:"recurring",title:"Recurring expenses",subtitle:"Subscriptions & fixed recurring costs",content:budgetRecurring(),total:euro(recurring())+"/mo"},
+  {key:"recurring",title:"Subscriptions / Recurring",subtitle:"Subscriptions & fixed recurring costs",content:budgetRecurring(),total:euro(recurring())+"/mo"},
   {key:"gifts",title:"Gifts & occasions",subtitle:"Birthdays, Christmas and other occasions",content:budgetGifts(),total:euro(giftMonthly())+"/mo"},
-  {key:"other",title:"Other Essentials",subtitle:"Food and general essentials",content:budgetOther(),total:euro(state.weekendFood+state.general)+"/mo"}
+  {key:"other",title:"Monthly Spending Budget / Fun Money",subtitle:"Weekend food and general monthly spending",content:budgetOther(),total:euro(state.weekendFood+state.general)+"/mo"}
  ];
  const custom=(state.customSections||[]).map((s,i)=>({key:"custom-"+i,title:s.name,subtitle:"Custom section",content:budgetCustom(i),total:euro(customSectionMonthly(s))+"/mo"}));
  return `<div class="top"><h1>Budget</h1><div class="muted">Essentials & planned costs</div></div>
- <div class="card budget-overview"><div class="row"><b>Total Essentials</b><b>${euro(planned()+customSectionsMonthly())}/mo</b></div><div class="muted">Tap a section to expand it.</div></div>
+ <div class="card budget-overview">
+  <div class="row"><b>Total Essentials</b><b>${euro(planned())}/mo</b></div>
+  <div class="muted" style="margin-bottom:10px">This is the monthly amount planned across everything listed in the Budget below. The sections add up to this total.</div>
+  <div class="budget-rundown">
+    <div class="row small"><span>Subscriptions / Recurring</span><b>${euro(recurring())}</b></div>
+    <div class="row small"><span>Gifts & occasions</span><b>${euro(giftMonthly())}</b></div>
+    <div class="row small"><span>Monthly Spending Budget / Fun Money</span><b>${euro(state.weekendFood+state.general)}</b></div>
+    ${(state.customSections||[]).map((s,i)=>`<div class="row small"><span>${esc(s.name)}</span><b>${euro(customSectionMonthly(s))}</b></div>`).join("")}
+    <div class="budget-rundown-total row"><b>Total</b><b>${euro(planned())}</b></div>
+  </div>
+</div>
  ${sections.concat(custom).map(s=>`<div class="card budget-section">
    <button class="section-toggle" onclick="toggleBudgetSection('${esc(s.key)}')" aria-expanded="${state.budgetOpen?.[s.key]?'true':'false'}">
      <span><b>${esc(s.title)}</b><small>${esc(s.subtitle)}</small></span>
@@ -110,7 +124,7 @@ function budgetRecurring(){
  return `${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span>${esc(x.name)}</span><span>${euro(x.frequency==="yearly"?Number(x.amount)/12:Number(x.amount))}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button>`;
 }
 function budgetGifts(){
- return `${Array.isArray(state.gifts)&&state.gifts.length?state.gifts.map((g,i)=>`<div class="item"><div class="row"><span>${esc(g.person)}<br><span class="muted">${esc(g.occasion)}</span></span><span>${euro(g.amount)}</span></div></div>`).join(""):'<div class="empty">Add your gift occasions.</div>'}<button onclick="addGiftDirect()">＋ Add gift</button><button class="secondary" onclick="editGifts()">✎ Edit gifts</button>`;
+ return `${Array.isArray(state.gifts)&&state.gifts.length?state.gifts.map((g,i)=>`<div class="item"><div class="row"><span>${esc(g.person)}<br><span class="muted">${esc(g.occasion)}</span></span><span style="display:flex;align-items:center;gap:6px"><span>${euro(g.amount)}</span><button class="icon" onclick="editGift(${i})" aria-label="Edit gift">✎</button><button class="icon delete" onclick="removeGiftDirect(${i})" aria-label="Delete gift">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your gift occasions.</div>'}<button onclick="addGiftDirect()">＋ Add gift</button><button class="secondary" onclick="editGifts()">✎ Edit all gifts</button>`;
 }
 function budgetOther(){
  return `<div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editOther()">✎ Edit</button>`;
@@ -150,7 +164,7 @@ function addRecurring(){editRecurring(-1)}
 function editRecurring(i){
   let x=i>=0?state.recurring[i]:{name:"",amount:0,frequency:"monthly"};
   document.getElementById("sheet").innerHTML=`<h2>${i>=0?"Edit":"Add"} recurring expense</h2>
-  ${field("Name","rn",x.name)}
+  ${field("Name","rn",x.name,"","text")}
   ${field("Amount (€)","ra",x.amount,".01")}
   <label>Frequency</label><select id="rf"><option value="monthly" ${x.frequency==="monthly"?"selected":""}>Monthly</option><option value="yearly" ${x.frequency==="yearly"?"selected":""}>Yearly</option></select>
   <button onclick="saveRecurring(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
@@ -178,7 +192,7 @@ function addCustomSection(){
 }
 function editCustomSection(i){
   const s=state.customSections[i];
-  document.getElementById("sheet").innerHTML=`<h2>Edit section</h2>${field("Section name","csn",s.name)}<button onclick="saveCustomSection(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  document.getElementById("sheet").innerHTML=`<h2>Edit section</h2>${field("Section name","csn",s.name,"","text")}<button onclick="saveCustomSection(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
 function saveCustomSection(i){
@@ -194,7 +208,7 @@ function deleteCustomSection(i){
 function addCustomItem(i){editCustomItem(i,-1)}
 function editCustomItem(i,j){
   const x=j>=0?state.customSections[i].items[j]:{name:"",amount:0};
-  document.getElementById("sheet").innerHTML=`<h2>${j>=0?"Edit":"Add"} item</h2>${field("Name","cin",x.name)}${field("Monthly amount (€)","cia",x.amount,".01")}<button onclick="saveCustomItem(${i},${j})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  document.getElementById("sheet").innerHTML=`<h2>${j>=0?"Edit":"Add"} item</h2>${field("Name","cin",x.name,"","text")}${field("Monthly amount (€)","cia",x.amount,".01")}<button onclick="saveCustomItem(${i},${j})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
   document.getElementById("modal").classList.add("open");
 }
 function saveCustomItem(i,j){
@@ -206,6 +220,22 @@ function saveCustomItem(i,j){
 }
 function deleteCustomItem(i,j){
   if(confirm("Delete this item?")){state.customSections[i].items.splice(j,1);save();render("budget")}
+}
+function editGift(i){
+  const g=state.gifts[i];
+  document.getElementById("sheet").innerHTML=`<h2>Edit gift</h2>${field("Person","sgp",g.person,"","text")}${field("Occasion","sgo",g.occasion,"","text")}${field("Amount (€)","sgm",g.amount,".01")}<button onclick="saveGift(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
+  document.getElementById("modal").classList.add("open");
+}
+function saveGift(i){
+  state.gifts[i].person=document.getElementById("sgp").value.trim()||"Gift";
+  state.gifts[i].occasion=document.getElementById("sgo").value.trim()||"Occasion";
+  state.gifts[i].amount=Math.max(0,parseFloat(document.getElementById("sgm").value)||0);
+  save();closeModal();render("budget");
+}
+function removeGiftDirect(i){
+  if(confirm("Delete this gift occasion?")){
+    state.gifts.splice(i,1);save();render("budget");
+  }
 }
 function addGiftDirect(){
   state.gifts.push({person:"",occasion:"",amount:0});
@@ -255,11 +285,11 @@ function saveGifts(){
   state.gifts=rows;
   save();closeModal();render("budget")
 }
-function editOther(){document.getElementById("sheet").innerHTML=`<h2>Other Essentials</h2>${field("Weekend food (€ / month)","wf",state.weekendFood,".01")}${field("General (€ / month)","ge",state.general,".01")}<button onclick="saveOther()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
+function editOther(){document.getElementById("sheet").innerHTML=`<h2>Monthly Spending Budget / Fun Money</h2>${field("Weekend food (€ / month)","wf",state.weekendFood,".01")}${field("General (€ / month)","ge",state.general,".01")}<button onclick="saveOther()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveOther(){state.weekendFood=Math.max(0,parseFloat(document.getElementById("wf").value)||0);state.general=Math.max(0,parseFloat(document.getElementById("ge").value)||0);save();closeModal();render("budget")}
 function settings(){document.getElementById("sheet").innerHTML=`<h2>Edit plan</h2><p class="muted">These values are stored locally on this device.</p>${field("Timeframe (years)","py",state.years,".5")}${field("Starting savings (€)","ps",state.startingSavings,".01")}${field("Annual income (€)","pi",state.annualPay,".01")}${field("Target savings (€)","pt",state.target,".01")}${field("Additional monthly allowance (€)","pf",state.flexible,".01")}<button onclick="saveSettings()">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;document.getElementById("modal").classList.add("open")}
 function saveSettings(){state.years=Math.max(.5,parseFloat(document.getElementById("py").value)||2);state.startingSavings=Math.max(0,parseFloat(document.getElementById("ps").value)||0);state.annualPay=Math.max(0,parseFloat(document.getElementById("pi").value)||0);state.target=Math.max(0,parseFloat(document.getElementById("pt").value)||0);state.flexible=Math.max(0,parseFloat(document.getElementById("pf").value)||0);save();closeModal();render("plan")}
-function field(label,id,val,step=".01"){return `<label>${label}</label><input id="${id}" type="number" min="0" step="${step}" value="${val===undefined?"":val}">`}
+function field(label,id,val,step=".01",type="number"){return `<label>${label}</label><input id="${id}" type="${type}" ${type==="number"?"min=\"0\" step=\""+step+"\"":""} value="${val===undefined?"":esc(val)}">`}
 function setTheme(t){state.theme=t;state.dark=t==="dark";save();render("plan")}
 function toggleEssentials(){state.showEssentialsOutcome=!state.showEssentialsOutcome;save();render("plan")}
 function closeModal(){document.getElementById("modal").classList.remove("open")}
