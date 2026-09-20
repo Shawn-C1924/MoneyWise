@@ -111,9 +111,9 @@ function monthKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1
 function monthLabel(k){let [y,m]=k.split("-");return new Date(+y,+m-1,1).toLocaleString(undefined,{month:"long",year:"numeric"})}
 function giftMonthly(){
   if(Array.isArray(state.gifts)){
-    return giftMonthly().reduce((sum,g)=>sum+(Number(g.amount)||0),0)/12;
+    return state.gifts.reduce((sum,g)=>sum+(Number(g.amount)||0),0)/12;
   }
-  return Number(state.gifts)||0;
+  return Number(giftMonthly())||0;
 }
 function recurring(){
   return state.recurring.reduce((a,x)=>{
