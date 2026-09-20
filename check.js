@@ -1,90 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#064e3b">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="manifest" href="manifest.webmanifest">
-<title>MoneyWise</title>
-<style>
-:root{--bg:#f3f6f4;--card:#fff;--text:#102019;--muted:#68766f;--line:#dce6e1;--soft:#edf5f1;--accent:#0a9f68;--accent2:#08784f;--gold:#d9b653;--danger:#e94b55;--dangerbg:#fff0f1;--shadow:0 8px 28px rgba(8,55,38,.08)}
-body.dark{--bg:#07120e;--card:#0d2018;--text:#effcf5;--muted:#8fa69c;--line:#1c382d;--soft:#11291f;--accent:#40e58b;--accent2:#12b86d;--gold:#e7c35f;--danger:#ff7078;--dangerbg:#351a1e;--shadow:0 8px 28px rgba(0,0,0,.25)}
-body.iconic{--bg:#07583d;--card:#0a3024;--text:#f2fff8;--muted:#a8d2c0;--line:#1c654c;--soft:#104735;--accent:#5af19a;--accent2:#16c879;--gold:#f0ce62;--danger:#ff747d;--dangerbg:#3c1c22;--shadow:0 12px 34px rgba(0,0,0,.24)}
-*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif}
-.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:96px}.top{padding:calc(env(safe-area-inset-top) + 20px) 18px 15px;background:linear-gradient(135deg,var(--card),color-mix(in srgb,var(--card) 76%,var(--accent) 24%));position:sticky;top:0;z-index:3;border-bottom:1px solid var(--line)}
-h1{font-size:28px;letter-spacing:-.7px;margin:0}.muted{color:var(--muted);font-size:14px}.card{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:17px;margin:13px 14px;box-shadow:var(--shadow)}
-.hero{background:linear-gradient(135deg,#064e3b,#087e55 58%,#18aa6d);color:#fff;border:0}.hero .muted{color:#c8f7df}.hero .progress{background:#ffffff2b}.hero .progress>div{background:#caffdf}
-.big{font-size:38px;font-weight:800;letter-spacing:-1.2px;margin:7px 0}.row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:8px 0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:13px 14px}.metric{background:var(--soft);border:1px solid var(--line);border-radius:16px;padding:14px}.metric b{display:block;font-size:19px;margin-top:4px}
-.progress{height:9px;background:var(--line);border-radius:99px;overflow:hidden}.progress>div{height:100%;background:var(--accent);border-radius:99px}
-button{border:0;border-radius:13px;padding:11px 14px;font-weight:700;background:var(--accent2);color:white;font-size:15px;margin:3px 3px 3px 0}button.secondary{background:var(--soft);color:var(--text);border:1px solid var(--line)}button.danger{background:var(--dangerbg);color:var(--danger)}button.icon{background:transparent;border:0;color:var(--muted);padding:7px 8px;font-size:17px;margin:0}button.icon.delete{color:var(--danger)}
-.nav{position:fixed;bottom:0;left:0;right:0;background:color-mix(in srgb,var(--card) 94%,transparent);backdrop-filter:blur(18px);border-top:1px solid var(--line);display:flex;justify-content:center;gap:4px;z-index:5;padding-bottom:env(safe-area-inset-bottom)}.nav button{background:transparent;color:var(--muted);border-radius:0;padding:10px 8px 11px;flex:0 1 105px;max-width:105px;font-size:11px;margin:0;text-align:center}.nav button.active{color:var(--accent);font-weight:800}.nav span{display:block;font-size:20px;line-height:20px;margin-bottom:3px}
-.item{padding:11px 0;border-bottom:1px solid var(--line)}.item:last-child{border-bottom:0}.small{font-size:13px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;background:var(--soft);font-size:12px}.iconbox{width:34px;height:34px;border-radius:11px;background:var(--soft);display:grid;place-items:center;flex:none}.month-head{cursor:pointer;padding:13px 12px;margin:0 -3px;border-radius:16px}.month-head.under{background:color-mix(in srgb,#22c55e 13%,var(--card))}.month-head.over{background:color-mix(in srgb,#ef4444 13%,var(--card))}.status{font-size:12px;font-weight:800}.under .status{color:#23a85f}.over .status{color:var(--danger)}
-input,select{width:100%;padding:12px;background:var(--card);color:var(--text);border:1px solid var(--line);border-radius:12px;font-size:16px;margin:5px 0 10px}.modal{position:fixed;inset:0;background:#0009;display:none;align-items:flex-end;z-index:10}.modal.open{display:flex}.sheet{background:var(--card);color:var(--text);width:100%;border-radius:24px 24px 0 0;padding:20px 18px 30px;max-height:92vh;overflow:auto}
-.toggle{display:flex;justify-content:space-between;align-items:center}.switch{width:50px;height:30px;border-radius:20px;background:#87958f;padding:3px;cursor:pointer}.switch i{display:block;width:24px;height:24px;border-radius:50%;background:white;transition:.2s}.switch.on{background:var(--accent)}.switch.on i{transform:translateX(20px)}
-.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.theme-choice{padding:13px 6px;border:1px solid var(--line);border-radius:14px;text-align:center;background:var(--soft);cursor:pointer}.theme-choice.active{border:2px solid var(--accent);padding:12px 5px}.theme-icon{font-size:23px;display:block;margin-bottom:4px}.empty{text-align:center;padding:18px 0;color:var(--muted)}
-</style>
 
-
-
-<style id="nav-icon-polish">
-.nav-icon{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:24px;
-  height:24px;
-  line-height:1;
-  font-weight:800;
-  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
-}
-.money-icon{
-  font-size:21px;
-  letter-spacing:-1px;
-}
-.graph-icon svg{
-  width:23px;
-  height:23px;
-}
-</style>
-<style id="gift-editor-polish">
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.gift-editor-row{padding:12px 0;border-bottom:1px solid var(--line)}
-.gift-editor-row:last-child{border-bottom:0}
-.gift-editor-row input{width:100%;box-sizing:border-box}
-</style>
-<style id="budget-sections-v011">
-.budget-section{padding:0;overflow:hidden}
-.section-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left;background:none;border:0;padding:18px 18px;color:inherit}
-.section-toggle>span:first-child{display:flex;flex-direction:column;gap:4px}
-.section-toggle small{color:var(--muted);font-size:12px;font-weight:500}
-.section-right{display:flex;align-items:center;gap:10px;white-space:nowrap}
-.chevron{font-size:20px;line-height:1}
-.section-body{padding:0 18px 18px}
-.section-body>button{margin-top:10px}
-.budget-overview{padding:16px 18px}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-</style>
-<style id="budget-rundown-v012">
-.budget-rundown{border-top:1px solid var(--line);padding-top:8px}
-.budget-rundown .row{margin:7px 0}
-.budget-rundown-total{border-top:1px solid var(--line);padding-top:8px;margin-top:8px!important}
-</style>
-</head>
-<body>
-<div id="app" class="app"></div>
-<div class="nav">
-<button data-tab="home" class="active"><span class="nav-icon">⌂</span>Home</button>
-<button data-tab="spend"><span class="nav-icon money-icon" aria-hidden="true">$</span>Spend</button>
-<button data-tab="budget"><span class="nav-icon">☷</span>Budget</button>
-<button data-tab="plan"><span class="nav-icon graph-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18V6"/><path d="M4 18h16"/><path d="m7 15 4-4 3 2 5-6"/></svg></span>Plan</button>
-</div>
-<div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
-<script>
-const DATA_VERSION="0.12";
+const DATA_VERSION="0.11";
 const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
@@ -175,23 +90,13 @@ function spend(){
 }
 function budget(){
  const sections=[
-  {key:"recurring",title:"Subscriptions / Recurring",subtitle:"Subscriptions & fixed recurring costs",content:budgetRecurring(),total:euro(recurring())+"/mo"},
+  {key:"recurring",title:"Recurring expenses",subtitle:"Subscriptions & fixed recurring costs",content:budgetRecurring(),total:euro(recurring())+"/mo"},
   {key:"gifts",title:"Gifts & occasions",subtitle:"Birthdays, Christmas and other occasions",content:budgetGifts(),total:euro(giftMonthly())+"/mo"},
-  {key:"other",title:"Monthly Spending Budget / Fun Money",subtitle:"Weekend food and general monthly spending",content:budgetOther(),total:euro(state.weekendFood+state.general)+"/mo"}
+  {key:"other",title:"Other Essentials",subtitle:"Food and general essentials",content:budgetOther(),total:euro(state.weekendFood+state.general)+"/mo"}
  ];
  const custom=(state.customSections||[]).map((s,i)=>({key:"custom-"+i,title:s.name,subtitle:"Custom section",content:budgetCustom(i),total:euro(customSectionMonthly(s))+"/mo"}));
  return `<div class="top"><h1>Budget</h1><div class="muted">Essentials & planned costs</div></div>
- <div class="card budget-overview">
-  <div class="row"><b>Total Essentials</b><b>${euro(planned())}/mo</b></div>
-  <div class="muted" style="margin-bottom:10px">This is the monthly amount planned across everything listed in the Budget below. The sections add up to this total.</div>
-  <div class="budget-rundown">
-    <div class="row small"><span>Subscriptions / Recurring</span><b>${euro(recurring())}</b></div>
-    <div class="row small"><span>Gifts & occasions</span><b>${euro(giftMonthly())}</b></div>
-    <div class="row small"><span>Monthly Spending Budget / Fun Money</span><b>${euro(state.weekendFood+state.general)}</b></div>
-    ${(state.customSections||[]).map((s,i)=>`<div class="row small"><span>${esc(s.name)}</span><b>${euro(customSectionMonthly(s))}</b></div>`).join("")}
-    <div class="budget-rundown-total row"><b>Total</b><b>${euro(planned())}</b></div>
-  </div>
-</div>
+ <div class="card budget-overview"><div class="row"><b>Total Essentials</b><b>${euro(planned()+customSectionsMonthly())}/mo</b></div><div class="muted">Tap a section to expand it.</div></div>
  ${sections.concat(custom).map(s=>`<div class="card budget-section">
    <button class="section-toggle" onclick="toggleBudgetSection('${esc(s.key)}')" aria-expanded="${state.budgetOpen?.[s.key]?'true':'false'}">
      <span><b>${esc(s.title)}</b><small>${esc(s.subtitle)}</small></span>
@@ -205,7 +110,7 @@ function budgetRecurring(){
  return `${state.recurring.length?state.recurring.map((x,i)=>`<div class="item"><div class="row"><span>${esc(x.name)}</span><span>${euro(x.frequency==="yearly"?Number(x.amount)/12:Number(x.amount))}/mo <button class="icon" onclick="editRecurring(${i})" aria-label="Edit">✎</button><button class="icon delete" onclick="deleteRecurring(${i})" aria-label="Delete">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your recurring essentials.</div>'}<button onclick="addRecurring()">＋ Add recurring</button>`;
 }
 function budgetGifts(){
- return `${Array.isArray(state.gifts)&&state.gifts.length?state.gifts.map((g,i)=>`<div class="item"><div class="row"><span>${esc(g.person)}<br><span class="muted">${esc(g.occasion)}</span></span><span style="display:flex;align-items:center;gap:6px"><span>${euro(g.amount)}</span><button class="icon" onclick="editGift(${i})" aria-label="Edit gift">✎</button><button class="icon delete" onclick="removeGiftDirect(${i})" aria-label="Delete gift">⌫</button></span></div></div>`).join(""):'<div class="empty">Add your gift occasions.</div>'}<button onclick="addGiftDirect()">＋ Add gift</button><button class="secondary" onclick="editGifts()">✎ Edit all gifts</button>`;
+ return `${Array.isArray(state.gifts)&&state.gifts.length?state.gifts.map((g,i)=>`<div class="item"><div class="row"><span>${esc(g.person)}<br><span class="muted">${esc(g.occasion)}</span></span><span>${euro(g.amount)}</span></div></div>`).join(""):'<div class="empty">Add your gift occasions.</div>'}<button onclick="addGiftDirect()">＋ Add gift</button><button class="secondary" onclick="editGifts()">✎ Edit gifts</button>`;
 }
 function budgetOther(){
  return `<div class="row small"><span>Weekend food</span><span>${euro(state.weekendFood)}</span></div><div class="row small"><span>General</span><span>${euro(state.general)}</span></div><button class="secondary" onclick="editOther()">✎ Edit</button>`;
@@ -302,22 +207,6 @@ function saveCustomItem(i,j){
 function deleteCustomItem(i,j){
   if(confirm("Delete this item?")){state.customSections[i].items.splice(j,1);save();render("budget")}
 }
-function editGift(i){
-  const g=state.gifts[i];
-  document.getElementById("sheet").innerHTML=`<h2>Edit gift</h2>${field("Person","sgp",g.person)}${field("Occasion","sgo",g.occasion)}${field("Amount (€)","sgm",g.amount,".01")}<button onclick="saveGift(${i})">Save</button> <button class="secondary" onclick="closeModal()">Cancel</button>`;
-  document.getElementById("modal").classList.add("open");
-}
-function saveGift(i){
-  state.gifts[i].person=document.getElementById("sgp").value.trim()||"Gift";
-  state.gifts[i].occasion=document.getElementById("sgo").value.trim()||"Occasion";
-  state.gifts[i].amount=Math.max(0,parseFloat(document.getElementById("sgm").value)||0);
-  save();closeModal();render("budget");
-}
-function removeGiftDirect(i){
-  if(confirm("Delete this gift occasion?")){
-    state.gifts.splice(i,1);save();render("budget");
-  }
-}
 function addGiftDirect(){
   state.gifts.push({person:"",occasion:"",amount:0});
   editGifts();
@@ -377,6 +266,3 @@ function closeModal(){document.getElementById("modal").classList.remove("open")}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>render(b.dataset.tab)));
 render("home");/* Baseline loads directly; setup remains optional through editing. */
-</script>
-</body>
-</html>
