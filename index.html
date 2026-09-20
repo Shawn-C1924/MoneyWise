@@ -90,6 +90,13 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 .add-section-btn{width:100%;display:block;margin:10px 0 0!important}
 .spend-outflow{font-weight:800;color:var(--danger);white-space:nowrap}
 </style>
+<style id="data-safety-v017">
+.backup-status{display:flex;justify-content:space-between;gap:12px;padding:12px;background:var(--soft);border:1px solid var(--line);border-radius:12px;margin:14px 0}
+.backup-status span{color:var(--muted);text-align:right}
+.backup-toggle{display:flex;align-items:center;gap:10px;margin:12px 0}
+.backup-toggle input{width:auto}
+.backup-note{margin-top:12px}
+</style>
 </head>
 <body>
 <div id="app" class="app"></div>
@@ -101,7 +108,7 @@ input,select{width:100%;padding:12px;background:var(--card);color:var(--text);bo
 </div>
 <div id="modal" class="modal"><div class="sheet" id="sheet"></div></div>
 <script>
-const DATA_VERSION="0.16";
+const DATA_VERSION="0.17";
 const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annualPay:32000,target:75000,years:2,showEssentialsOutcome:true,flexible:288,recurring:[
       {name:"Gas",amount:40,frequency:"monthly"},
       {name:"Xiaomi",amount:3.50,frequency:"monthly"},
@@ -135,11 +142,11 @@ const DEFAULT={version:DATA_VERSION,configured:true,startingSavings:34000,annual
   {person:"Child 1",occasion:"Christmas",amount:50},
   {person:"Child 2",occasion:"Birthday",amount:50},
   {person:"Child 2",occasion:"Christmas",amount:50}
-],weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],stashHistory:[],monthlyActions:{},dark:false,theme:"iconic",openMonths:{},customSections:[]};
+],weekendFood:173.33,general:100,transactions:[],carry:0,carryHistory:[],stashHistory:[],monthlyActions:{},autoBackup:true,backupIntervalMinutes:15,dark:false,theme:"iconic",openMonths:{},customSections:[]};
 let state;
 try{
   const saved=JSON.parse(localStorage.getItem("moneywise")||"null");
-  if(saved && ["0.11","0.12","0.13","0.14","0.15","0.16"].includes(String(saved.version))){
+  if(saved && ["0.11","0.12","0.13","0.14","0.15","0.16","0.17"].includes(String(saved.version))){
     state={...structuredClone(DEFAULT),...saved,version:DATA_VERSION};
   }else{
     state=structuredClone(DEFAULT);
@@ -149,7 +156,89 @@ try{
 }
 Object.keys(DEFAULT).forEach(k=>{if(state[k]===undefined)state[k]=structuredClone(DEFAULT[k])});if(!state.budgetOpen)state.budgetOpen={recurring:false,gifts:false,other:false};if(!state.customSections)state.customSections=[];
 if(!state.stashHistory)state.stashHistory=[];if(!state.monthlyActions)state.monthlyActions={};if(!state.theme)state.theme=state.dark?"dark":"iconic";
-function save(){localStorage.setItem("moneywise",JSON.stringify(state))}
+
+function backupTimestamp(){
+  const d=new Date();
+  return d.toLocaleString([], {year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function backupPayload(){
+  return {app:"MoneyWise",version:DATA_VERSION,exportedAt:new Date().toISOString(),state:structuredClone(state)};
+}
+function saveAutoBackup(){
+  try{
+    localStorage.setItem("moneywise_auto_backup",JSON.stringify(backupPayload()));
+    localStorage.setItem("moneywise_auto_backup_time",new Date().toISOString());
+  }catch(e){}
+}
+function autoBackup(){
+  if(state.autoBackup!==false)saveAutoBackup();
+}
+function downloadBackup(){
+  const payload=backupPayload();
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const stamp=new Date().toISOString().slice(0,10);
+  a.href=url;a.download=`MoneyWise_Backup_${stamp}.json`;
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+function importBackupFile(){
+  const input=document.getElementById("backupFile");
+  if(input)input.click();
+}
+function handleBackupImport(input){
+  const file=input.files?.[0];
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    try{
+      const payload=JSON.parse(reader.result);
+      const incoming=payload?.state;
+      if(!incoming || typeof incoming!=="object")throw new Error("Invalid backup");
+      if(!confirm("Restore this MoneyWise backup? Your current data will be replaced by the backup."))return;
+      state={...structuredClone(DEFAULT),...incoming,version:DATA_VERSION};
+      if(!state.stashHistory)state.stashHistory=[];
+      if(!state.monthlyActions)state.monthlyActions={};
+      if(!state.carryHistory)state.carryHistory=[];
+      if(!state.transactions)state.transactions=[];
+      if(!state.customSections)state.customSections=[];
+      if(!state.autoBackup && state.autoBackup!==false)state.autoBackup=true;
+      save();
+      alert("Backup restored successfully.");
+      render("home");
+    }catch(e){
+      alert("That file does not look like a valid MoneyWise backup.");
+    }finally{
+      input.value="";
+    }
+  };
+  reader.readAsText(file);
+}
+function backupInfo(){
+  let t=null;
+  try{t=localStorage.getItem("moneywise_auto_backup_time")}catch(e){}
+  return t?new Date(t).toLocaleString([], {year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"}):"Not created yet";
+}
+function openBackupSettings(){
+  document.getElementById("sheet").innerHTML=`<h2>Data backup</h2>
+  <div class="muted">MoneyWise keeps an automatic local snapshot while the app is in use. You can also export a file and keep it somewhere safe, such as iCloud Drive. Exported backups are the independent copy that protects you if Safari website data is cleared.</div>
+  <div class="backup-status"><b>Automatic local backup</b><span>${backupInfo()}</span></div>
+  <label class="backup-toggle"><input id="abToggle" type="checkbox" ${state.autoBackup!==false?"checked":""}> Keep automatic local backups</label>
+  <button onclick="saveBackupSettings()">Save settings</button>
+  <button class="secondary" onclick="downloadBackup()">⬇ Export backup</button>
+  <button class="secondary" onclick="importBackupFile()">⬆ Import backup</button>
+  <input id="backupFile" type="file" accept=".json,application/json" style="display:none" onchange="handleBackupImport(this)">
+  <div class="muted backup-note">Automatic snapshots update when you change data and periodically while MoneyWise is open. Safari/iOS does not allow a web app to reliably write a file to your storage in the background, so keep an exported backup for real disaster recovery.</div>`;
+  document.getElementById("modal").classList.add("open");
+}
+function saveBackupSettings(){
+  state.autoBackup=document.getElementById("abToggle").checked;
+  save();
+  closeModal();
+  render("plan");
+}
+function save(){localStorage.setItem("moneywise",JSON.stringify(state));autoBackup()}
 function euro(n){return new Intl.NumberFormat("en-IE",{style:"currency",currency:"EUR",maximumFractionDigits:2}).format(n)}
 function monthKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function monthLabel(k){let [y,m]=k.split("-");return new Date(+y,+m-1,1).toLocaleString(undefined,{month:"long",year:"numeric"})}
@@ -259,7 +348,8 @@ function plan(){
  <div class="card"><div class="muted">Projected finish</div><div class="big">${euro(p)}</div><div class="row"><span>Buffer above target</span><b>${euro(p-state.target)}</b></div><div class="muted">Includes Essentials and your additional monthly allowance.</div></div>
  <div class="card"><div class="toggle"><div><b>Essentials-only outcome</b><div class="muted">Assumes nothing extra is spent from the Spend section.</div></div><div class="switch ${state.showEssentialsOutcome?"on":""}" onclick="toggleEssentials()"><i></i></div></div>${state.showEssentialsOutcome?`<div style="margin-top:18px"><div class="muted">Projected outcome</div><div class="big">${euro(ess)}</div><div class="row"><span>Buffer above target</span><b>${euro(ess-state.target)}</b></div></div>`:""}</div>
  <div class="card"><b>Plan assumptions</b><div class="row small"><span>Timeframe</span><span>${state.years} years</span></div><div class="row small"><span>Starting savings</span><span>${euro(state.startingSavings)}</span></div><div class="row small"><span>Annual income</span><span>${euro(state.annualPay)}</span></div><div class="row small"><span>Target</span><span>${euro(state.target)}</span></div><div class="row small"><span>Additional monthly allowance</span><span>${euro(state.flexible)}</span></div><button class="secondary" onclick="settings()">✎ Edit plan</button></div>
- <div class="card"><b>Appearance</b><div class="muted">Choose your MoneyWise look.</div><div class="theme-grid"><div class="theme-choice ${state.theme==="light"?"active":""}" onclick="setTheme('light')"><span class="theme-icon">☀️</span>Light</div><div class="theme-choice ${state.theme==="dark"?"active":""}" onclick="setTheme('dark')"><span class="theme-icon">🌙</span>Dark</div><div class="theme-choice ${state.theme==="iconic"?"active":""}" onclick="setTheme('iconic')"><span class="theme-icon">◈</span>Iconic</div></div></div>`;
+ <div class="card"><b>Appearance</b><div class="muted">Choose your MoneyWise look.</div><div class="theme-grid"><div class="theme-choice ${state.theme==="light"?"active":""}" onclick="setTheme('light')"><span class="theme-icon">☀️</span>Light</div><div class="theme-choice ${state.theme==="dark"?"active":""}" onclick="setTheme('dark')"><span class="theme-icon">🌙</span>Dark</div><div class="theme-choice ${state.theme==="iconic"?"active":""}" onclick="setTheme('iconic')"><span class="theme-icon">◈</span>Iconic</div></div></div>
+ <div class="card"><b>Data safety</b><div class="muted">Automatic local snapshot: ${backupInfo()}</div><button class="secondary" onclick="openBackupSettings()">💾 Backup & restore</button></div>`;
 }
 function showSetup(){
  document.getElementById("sheet").innerHTML=`<h2>Welcome to MoneyWise</h2><p class="muted">Enter your private planning assumptions. They are stored only on this device.</p>${field("Timeframe (years)","sy",2,".5")}${field("Starting savings (€)","ss","",".01")}${field("Annual income (€)","si",""," .01")}${field("Target savings (€)","st",""," .01")}${field("Additional monthly allowance (€)","sf",""," .01")}<button onclick="finishSetup()">Save private plan</button>`;
@@ -474,7 +564,19 @@ function toggleEssentials(){state.showEssentialsOutcome=!state.showEssentialsOut
 function closeModal(){document.getElementById("modal").classList.remove("open")}
 function esc(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
 document.querySelectorAll(".nav button").forEach(b=>b.addEventListener("click",()=>render(b.dataset.tab)));
-render("home");/* Baseline loads directly; setup remains optional through editing. */
+render("home");
+startAutoBackupTimer();
+if(state?.autoBackup!==false)saveAutoBackup();
+/* Baseline loads directly; setup remains optional through editing. */
+
+let autoBackupTimer=null;
+function startAutoBackupTimer(){
+  if(autoBackupTimer)clearInterval(autoBackupTimer);
+  autoBackupTimer=setInterval(()=>{
+    if(state?.autoBackup!==false)saveAutoBackup();
+  },(Number(state?.backupIntervalMinutes)||15)*60*1000);
+}
+window.addEventListener("beforeunload",()=>{if(state?.autoBackup!==false)saveAutoBackup()});
 </script>
 </body>
 </html>
